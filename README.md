@@ -14,3 +14,7 @@ fen2ppm.exe -s 128 "fen.ppm" "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq
 ```
 
 Note that different fonts assign their glyphs to (slightly) different codepoints. We will have to pass a translation table as an argument too (*not implemented yet*).
+
+# Download
+
+Look in the releases tab for stable builds. Look [here](https://ci.appveyor.com/project/dejbug/fen2ppm/branch/main/artifacts) for works in progress.
