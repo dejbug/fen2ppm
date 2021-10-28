@@ -16,22 +16,22 @@ before_build:
   - cmd: mingw32-make --version | head -1
   - cmd: g++ --version | head -1
   - cmd: 7z --help | head -3
+  - cmd: upx --version | head -5
 
 build_script:
-  - cmd: mingw32-make -j1 --keep-going
+  - cmd: SET NAME=%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%
+  - cmd: mingw32-make -j1 --keep-going release
 
 after_build:
-  - cmd: cd deploy
-  - cmd: COPY ..\README.md .
-  - cmd: COPY ..\LICENSE .
-  - cmd: 7z a ..\%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%.7z .
+  - cmd: RENAME deploy %NAME%
+  - cmd: 7z a %NAME%.7z %NAME%
 
 cache:
   - i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z
   - upx-3.96-win32.zip
 
 artifacts:
-  - path: $(appveyor_project_name)-$(appveyor_build_number).7z
+  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_NUMBER).7z
 
 deploy:
   - provider: Environment
