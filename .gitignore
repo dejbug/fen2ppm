@@ -2,3 +2,5 @@
 *.exe
 *.dll
 *.a
+*.ppm
+*.png
