@@ -37,4 +37,5 @@ deploy:
   - provider: Environment
     name: GH
     on:
-      branch: master
+      branch: main
+      appveyor_repo_tag: false # deploy on tag push only
