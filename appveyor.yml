@@ -1,0 +1,41 @@
+image: Visual Studio 2013
+
+environment:
+  priv_key:
+    secure: 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
+
+install:
+  - ps: $fileContent = "-----BEGIN RSA PRIVATE KEY-----`n"
+  - ps: $fileContent += $env:priv_key.Replace(' ', "`n")
+  - ps: $fileContent += "`n-----END RSA PRIVATE KEY-----`n"
+  - ps: Set-Content $env:userprofile\.ssh\id_rsa $fileContent
+  - git submodule update --init --recursive
+
+version: {build}
+
+skip_tags: true
+test: off
+max_jobs: 1
+shallow_clone: true
+
+build_script:
+  - cmd: call appveyor.bat
+
+cache:
+  - upx-3.96-win64.zip
+
+artifacts:
+  - path: build
+
+deploy:
+  - provider: GitHub
+    release: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME)-$(APPVEYOR_BUILD_VERSION)
+    description: Automated release.
+    auth_token:
+      secure: GlPci9QnLJxVkwdcLb6l1v0Std1gZw7kj+9Oyg/emy5H8Npnf8w6B9yXMH/DhNq2
+    artifact: deploy\$(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME).zip
+    draft: false
+    prerelease: true
+    on:
+      branch: master           # release from master branch only
+      appveyor_repo_tag: false # deploy on tag push only
