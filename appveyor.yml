@@ -31,7 +31,8 @@ cache:
   - upx-3.96-win32.zip
 
 artifacts:
-  - path: %NAME%.7z
+  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME).7z
+  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_NUMBER).7z
 
 deploy:
   - provider: Environment
