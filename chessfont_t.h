@@ -118,7 +118,8 @@ struct chessfont_t
 		CreateScalableFontResource(1,"TEMP.FOT",path,0);
 		if (0 == AddFontResource(path)) return false;
 
-		// This seems to be causing trouble. But we don't need this.
+		// This seems to be causing trouble. Perhaps we need to copy
+		// the font file into the windows\font folder first? We don't need this.
 		// if (notify) SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 		extract_name("TEMP.FOT", name, sizeof(name));
