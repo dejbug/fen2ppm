@@ -23,6 +23,7 @@ build_script:
   - cmd: mingw32-make -j1 --keep-going release
 
 after_build:
+  - cmd: ECHO Deploying "%NAME%".
   - cmd: RENAME deploy %NAME%
   - cmd: 7z a %NAME%.7z %NAME%
 
@@ -39,4 +40,4 @@ deploy:
     name: GH
     on:
       branch: main
-      appveyor_repo_tag: true # deploy on tag push only
+      appveyor_repo_tag: false # deploy on tag push only
