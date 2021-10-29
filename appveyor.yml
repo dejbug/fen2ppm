@@ -1,4 +1,4 @@
-version: "v0.0.{build}"
+version: "0.0.{build}"
 
 skip_tags: false
 test: off
@@ -30,9 +30,6 @@ after_build:
 cache:
   - i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z
   - upx-3.96-win32.zip
-
-artifacts:
-  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION).7z
 
 deploy:
   - provider: Environment
