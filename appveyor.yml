@@ -1,4 +1,4 @@
-version: v0.0.{build}
+version: "v0.0.{build}"
 
 skip_tags: false
 test: off
@@ -32,7 +32,7 @@ cache:
   - upx-3.96-win32.zip
 
 artifacts:
-  - path: *.7z
+  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION).7z
 
 deploy:
   - provider: Environment
