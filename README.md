@@ -13,7 +13,7 @@ Currently the functionality is very limited. You can render only a test image. Y
 fen2ppm.exe -s 128 "fen.ppm" "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" "C:\Windows\Fonts\MERIFONTNEW.TTF"
 ```
 
-will create this image. (This one is a PNG but the output will be in PPM format.)
+will create this image. (This one is a PNG but the output will be in PPM format.) The font doesn't have to be an installed font and can be in any folder.
 
 ![demo](../assets/fen.png?raw=true)
 
@@ -21,4 +21,4 @@ will create this image. (This one is a PNG but the output will be in PPM format.
 
 # Download
 
-Look in the releases tab for stable builds. Look [here](https://ci.appveyor.com/project/dejbug/fen2ppm/branch/main/artifacts) for works in progress.
+Look in the releases tab for versioned builds. Look [here](https://ci.appveyor.com/project/dejbug/fen2ppm/branch/main/artifacts) for works in progress (which will be deleted after a month).
