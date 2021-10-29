@@ -40,4 +40,4 @@ deploy:
     name: GH
     on:
       branch: main
-      appveyor_repo_tag: false # deploy on tag push only
+      appveyor_repo_tag: true # deploy on tag push only
