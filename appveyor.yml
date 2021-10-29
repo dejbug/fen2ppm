@@ -1,6 +1,6 @@
 version: "{build}"
 
-skip_tags: false
+skip_tags: true
 test: off
 max_jobs: 1
 
