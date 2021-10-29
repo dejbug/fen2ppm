@@ -1,5 +1,5 @@
 #pragma once
-#include <algorithm>
+#include <algorithm> // std::min
 
 
 bool find_text_in_file(FILE * file, char const * text);
@@ -25,7 +25,69 @@ struct chessfont_t
 		path[MAX_PATH] = '\0';
 	}
 
+	static size_t read_zstring_be(FILE * file, char * buf, size_t bsize)
+	{
+		DWORD const offset = ftell(file);
+		fseek(file, 0, SEEK_END);
+		DWORD const fsize = ftell(file);
+		fseek(file, offset, SEEK_SET);
+
+		if (offset >= fsize) return 0;
+
+		DWORD len = fgetc(file) << 24;
+		len |= (fgetc(file) << 16);
+		len |= (fgetc(file) << 8);
+		len |= (fgetc(file) << 0);
+
+		if (len > (fsize-offset)) return 0;
+
+		return fread(buf, sizeof(char), std::min(bsize, (size_t)len), file);
+	}
+
 	static bool extract_name(const char * fotpath, char * name, size_t size)
+	{
+		if (extract_name_by_offset(fotpath, name, size)) return true;
+		if (extract_name_by_search(fotpath, name, size)) return true;
+		return false;
+	}
+
+	static bool extract_name_by_offset(const char * fotpath, char * name, size_t size)
+	{
+		if (!fotpath || !*fotpath) return false;
+		if (!name) return false;
+		if (!size) return true;
+
+		memset(name, 0, size);
+
+		FILE * file = fopen(fotpath, "rb");
+		fseek(file, 0, SEEK_END);
+		DWORD const file_size = ftell(file);
+		fseek(file, 13, SEEK_SET);
+
+		// Seems this offset is little-endian but the others big-endian.
+		// TTF is an Apple technology but isn't FOT from Microsoft? Maybe
+		// they simply copied the strings over.
+		WORD offset = 0;
+		fread((char *)&offset, sizeof(WORD), 1, file);
+		if (offset >= file_size) { fclose(file); return false; }
+
+		fseek(file, offset, SEEK_SET);
+		// The first string is the (double-zero terminated) the file name.
+		if (!read_zstring_be(file, name, size)) return false;
+		fseek(file, 1, SEEK_CUR);
+		// This is what we're looking for.
+		size_t const len = read_zstring_be(file, name, size);
+		if (!len) return false;
+
+		fclose(file);
+
+		if (strncmp(name, "FONTRES:", 8)) return false;
+		if (strncpy_s(name, size, name+8, len-8)) return false;
+
+		return true;
+	}
+
+	static bool extract_name_by_search(const char * fotpath, char * name, size_t size)
 	{
 		if (!fotpath || !*fotpath) return false;
 		if (!name) return false;
@@ -45,8 +107,8 @@ struct chessfont_t
 			fgets(name, std::min((LONG)MAX_PATH, rest), file);
 			name[MAX_PATH] = '\0';
 		}
-		fclose(file);
 
+		fclose(file);
 		return result;
 	}
 
