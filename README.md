@@ -1,6 +1,5 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/rw6f5q1441rw3bl7/branch/main?svg=true)](https://ci.appveyor.com/project/dejbug/fen2ppm/branch/main)
 
-
 # fen2ppm
 
 Renders [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) (chess positions) to [PPM](https://en.wikipedia.org/wiki/Netpbm) (images).
