@@ -1,4 +1,4 @@
-version: "{build}"
+version: v0.0.{build}
 
 skip_tags: false
 test: off
@@ -11,7 +11,7 @@ install:
   - cmd: IF NOT EXIST upx-3.96-win32.zip curl -kLO https://github.com/upx/upx/releases/download/v3.96/upx-3.96-win32.zip
   - cmd: 7z x upx-3.96-win32.zip
   - cmd: SET PATH=%APPVEYOR_BUILD_FOLDER%\upx-3.96-win32;%PATH%
-  - cmd: IF %APPVEYOR_REPO_TAG%==true (SET NAME=%APPVEYOR_PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%) ELSE (SET NAME=%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%)
+  - cmd: SET NAME=%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_VERSION%
 
 before_build:
   - cmd: mingw32-make --version | head -1
@@ -23,7 +23,7 @@ build_script:
   - cmd: mingw32-make -j1 --keep-going release
 
 after_build:
-  - cmd: ECHO Deploying "%NAME%".
+  - cmd: ECHO Deploying "%NAME%.7z".
   - cmd: RENAME deploy %NAME%
   - cmd: 7z a %NAME%.7z %NAME%
 
@@ -32,12 +32,11 @@ cache:
   - upx-3.96-win32.zip
 
 artifacts:
-  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME).7z
-  - path: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_NUMBER).7z
+  - path: *.7z
 
 deploy:
   - provider: Environment
     name: GH
     on:
       branch: main
-      APPVEYOR_REPO_TAG: true # deploy on tag push only
+      APPVEYOR_REPO_TAG: false # deploy on tag push only
