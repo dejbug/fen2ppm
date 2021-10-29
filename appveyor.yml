@@ -11,7 +11,7 @@ install:
   - cmd: IF NOT EXIST upx-3.96-win32.zip curl -kLO https://github.com/upx/upx/releases/download/v3.96/upx-3.96-win32.zip
   - cmd: 7z x upx-3.96-win32.zip
   - cmd: SET PATH=%APPVEYOR_BUILD_FOLDER%\upx-3.96-win32;%PATH%
-  - cmd: IF %APPVEYOR_REPO_TAG%==true ( SET NAME=$(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME) ) ELSE ( SET NAME=$(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_NUMBER))
+  - cmd: IF %APPVEYOR_REPO_TAG%==true ( SET NAME=%APPVEYOR_PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME% ) ELSE ( SET NAME=%APPVEYOR_PROJECT_NAME%-%APPVEYOR_BUILD_NUMBER%)
 
 before_build:
   - cmd: mingw32-make --version | head -1
