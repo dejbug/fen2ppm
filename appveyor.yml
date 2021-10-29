@@ -31,7 +31,7 @@ cache:
   - upx-3.96-win32.zip
 
 artifacts:
-  - path: $(NAME).7z
+  - path: %NAME%.7z
 
 deploy:
   - provider: Environment
