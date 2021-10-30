@@ -1,6 +1,9 @@
 SHELL := cmd.exe
 NAME := fen2ppm
-TEST := -s 128 fen.ppm "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" MERIFONTNEW.TTF
+TEST_1 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_2 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -s 16 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_3 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 -x "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_4 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s
 
 CXX := g++
 CXXFLAGS :=
@@ -12,7 +15,7 @@ CXXFLAGS += -Wno-unused-parameter
 LDFLAGS := -lgdi32
 
 deploy/$(NAME).exe : build/main.o | deploy
-build/main.o : main.cpp  *.h | build
+build/main.o : main.cpp *.h lib/*.h | build
 
 deploy : ; IF NOT EXIST $@ MKDIR $@
 build : ; IF NOT EXIST $@ MKDIR $@
@@ -23,7 +26,7 @@ build : ; IF NOT EXIST $@ MKDIR $@
 .PHONY : clean reset run test
 clean : ; IF EXIST build RMDIR /Q /S build && DEL *.ppm 2>NUL
 reset : | clean ; IF EXIST deploy RMDIR /Q /S deploy
-run : deploy/$(NAME).exe ; @$< $(TEST)
+run : deploy/$(NAME).exe ; @$< $(TEST_1)
 
 .PHONY : release
 release : deploy/$(NAME).exe

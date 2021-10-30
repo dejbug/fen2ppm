@@ -7,7 +7,7 @@
 #include "fen.h"
 #include "bitmap.h"
 
-#include "argument_parser_t.h"
+#include "lib/argument_parser_t.h"
 #include "grid_t.h"
 #include "chessfont_t.h"
 
@@ -27,24 +27,39 @@ char const fen_0[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 char const map_Merida[] = "opmnvbtrwqlk";
 char const map_Alpha[] = "opjhnbtrwqlk";
 
+void print_argv(char ** argv)
+{
+	if (argv)
+		for (size_t i=0; argv[i]; ++i)
+			log("%3d %p |%s|\n", i, argv[i], argv[i]);
+}
 
 int main(int argc, char ** argv)
 {
-	argument_parser_t p;
-	if (!p.parse(argc, argv))
-		return p.error;
+	// print_argv(argv);
 
-	size_t const square_size = p.arg_square_size;
+	lib::argument_parser_t args(":f:t:o:s:vh");
+	if (!args.parse(argc, argv))
+	{
+		if (args.unknown)
+			log("%s: error: unknown option '%c' (\\x%x)\n", argv[0], args.unknown, args.unknown);
+		else if (args.missing)
+			log("%s: error: missing argument for option '%c' (\\x%x)\n", argv[0], args.missing, args.missing);
+		return EXIT_FAILURE;
+	}
+
+	args.print();
+
+	size_t const square_size = atoi(args.opt('s'));
 	size_t const gap = 0;
 	size_t const image_size = (square_size + gap) * 8;
 
+	log("fen raw: |%s|\n", args.arg(0));
 	char buf[64+1] = {0};
-	fen_unpack(buf, p.arg_fen_text);
-	// fen_translate(buf, map_Alpha);
-	fen_translate(buf, map_Merida);
-
-	log("fen: |%s|\n", p.arg_fen_text);
-	log("buf: |%s|\n", buf);
+	fen_unpack(buf, args.arg(0));
+	log("fen unp: |%s|\n", buf);
+	fen_translate(buf, args.opt('t'));
+	log("fen map: |%s|\n", buf);
 
 	context_t ct;
 	if (!ct.init()) return 1;
@@ -61,7 +76,7 @@ int main(int argc, char ** argv)
 	grid.set_square_size(square_size, gap);
 
 	chessfont_t font;
-	font.install(p.arg_font_path);
+	font.install(args.opt('f'));
 	log("Chess font facename is |%s|.\n", font.name);
 	font.create(square_size);
 	log("Chess font handle is %p\n", (void *)font.handle);
@@ -98,18 +113,23 @@ int main(int argc, char ** argv)
 			TextOut(mdc, r.left + m.cx, r.top + m.cy, fen_buf, 1);
 		}
 
-	if (p.arg_out_path)
+	if (args.opt('o'))
 	{
-		FILE * outfile = fopen(p.arg_out_path, "wb");
+		log("* WRITING\n");
+		FILE * outfile = fopen(args.opt('o'), "wb");
 		dump_bitmap_data(mdc, bmp, outfile);
 		fclose(outfile);
 	}
 	else
+	{
+		log("* PRINTING\n");
 		dump_bitmap_data(mdc, bmp, stdout);
+	}
 
 	font.free();
 	font.uninstall();
 	if (bmp) DeleteObject(bmp);
 	if (mdc) DeleteDC(mdc);
-	return 0;
+
+	return EXIT_SUCCESS;
 }

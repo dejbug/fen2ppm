@@ -1,5 +1,5 @@
 #pragma once
-#include "Log.h"
+#include "log.h"
 
 #define BLUE(c) ((unsigned char)((c) & 0xFF))
 #define GREEN(c) ((unsigned char)(((c) >> 8) & 0xff))
