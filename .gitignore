@@ -4,3 +4,6 @@
 *.a
 *.ppm
 *.png
+*.ttf
+/.ideas/
+*.patch

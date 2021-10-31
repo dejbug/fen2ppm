@@ -1,5 +1,5 @@
 #pragma once
-#include "log.h"
+#include "lib/lib.h" // log
 
 #define BLUE(c) ((unsigned char)((c) & 0xFF))
 #define GREEN(c) ((unsigned char)(((c) >> 8) & 0xff))
@@ -89,11 +89,11 @@ bool dump_bitmap_data(HDC dc, HBITMAP bmp, FILE * file=stdout)
 	BITMAPINFO bi;
 	BITMAPINFOHEADER & ih = bi.bmiHeader;
 	if (!get_bitmap_info(dc, bmp, bi)) return false;
-	log("%ldx%ld@%d (%ld)\n", ih.biWidth, ih.biHeight, ih.biBitCount, ih.biSizeImage);
+	lib::log("%ldx%ld@%d (%ld)\n", ih.biWidth, ih.biHeight, ih.biBitCount, ih.biSizeImage);
 
 	char * data = nullptr;
 	if (!get_bitmap_data(dc, bmp, bi, data)) return false;
-	log("Bitmap Data PTR: %p\n", data);
+	lib::log("Bitmap Data PTR: %p\n", data);
 	if (!data) return false;
 	if (ih.biBitCount != 32 || ih.biSizeImage != calc_bitmap_size_32(ih))
 	{

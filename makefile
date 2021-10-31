@@ -1,21 +1,20 @@
 SHELL := cmd.exe
 NAME := fen2ppm
-TEST_1 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_2 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -s 16 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_1 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_2 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -s 16 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 TEST_3 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 -x "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 TEST_4 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s
 
 CXX := g++
 CXXFLAGS :=
 CXXFLAGS += -Wall -Wextra -pedantic
-CXXFLAGS += -std=c++17 -fconcepts
 CXXFLAGS += -Wno-unused-parameter
-# CXXFLAGS += -Wl,--subsystem=windows
+CXXFLAGS += -Wl,--subsystem=console
 
 LDFLAGS := -lgdi32
 
 deploy/$(NAME).exe : build/main.o | deploy
-build/main.o : main.cpp *.h lib/*.h | build
+build/main.o : main.cpp *.h lib/*.h lib/*/*.h | build
 
 deploy : ; IF NOT EXIST $@ MKDIR $@
 build : ; IF NOT EXIST $@ MKDIR $@

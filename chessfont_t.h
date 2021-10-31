@@ -1,6 +1,8 @@
 #pragma once
 #include <algorithm> // std::min
 
+#define FOT_PATH "FEN2PPM.TEMP.FOT"
+
 
 bool find_text_in_file(FILE * file, char const * text);
 
@@ -114,22 +116,23 @@ struct chessfont_t
 
 	bool install(char const * path, bool notify=false)
 	{
+		DeleteFile(FOT_PATH);
 		set_path(path);
-		CreateScalableFontResource(1,"TEMP.FOT",path,0);
+		CreateScalableFontResource(1,FOT_PATH,path,0);
 		if (0 == AddFontResource(path)) return false;
 
 		// This seems to be causing trouble. Perhaps we need to copy
 		// the font file into the windows\font folder first? We don't need this.
 		// if (notify) SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
-		extract_name("TEMP.FOT", name, sizeof(name));
+		extract_name(FOT_PATH, name, sizeof(name));
 		return true;
 	}
 
 	bool uninstall()
 	{
 		RemoveFontResource(path);
-		DeleteFile("TEMP.FOT");
+		DeleteFile(FOT_PATH);
 		set_path(0);
 		return true;
 	}

@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "argument_parser_t.h"
 
-#include "../log.h"
+#include "../lib.h" // log, print_argv
 
 #define VERBOSE
 #define MAX_ARGV 8
@@ -19,7 +19,7 @@ size_t argv_from_args(char * argv[MAX_ARGV], char * args)
 	{
 		len = strlen(args + off);
 		argv[argc] = args + off;
-		// log("%d %s\n", len, args + off);
+		// lib::log("%d %s\n", len, args + off);
 		if (!len) break;
 		off += len + 1;
 	}
@@ -33,7 +33,7 @@ void print_argv(char ** argv)
 {
 	if (argv)
 		for (size_t i=0; argv[i]; ++i)
-			log("%3d %p |%s|\n", i, argv[i], argv[i]);
+			lib::log("%3d %p |%s|\n", i, argv[i], argv[i]);
 }
 
 int main(int _, char ** argv_)
@@ -46,8 +46,8 @@ int main(int _, char ** argv_)
 	lib::argument_parser_t p("abc:");
 	p.parse(argc, argv);
 	p.print();
-	log("c is %s\n", p.on('c') ? "ON" : "OFF");
-	log("c is %s\n", p.set('c') ? "SET" : "NONE");
+	lib::log("c is %s\n", p.on('c') ? "ON" : "OFF");
+	lib::log("c is %s\n", p.set('c') ? "SET" : "NONE");
 	return 0;
 #endif
 	testing::InitGoogleTest();
@@ -61,11 +61,11 @@ TEST(SelfTest, ArgvFromArgs) {
 	char * argv[MAX_ARGV];// = {0};
 	int const argc = argv_from_args(argv, args);
 #ifdef VERBOSE
-	log("%d %p\n", argc, argv);
+	lib::log("%d %p\n", argc, argv);
 	for (size_t i=0; i<argc+1; ++i)
-		log("%d |%s|\n", i, argv[i]);
+		lib::log("%d |%s|\n", i, argv[i]);
 	for (size_t i=0; i<MAX_ARGV; ++i)
-		log("%d |%p|\n", i, argv[i]);
+		lib::log("%d |%p|\n", i, argv[i]);
 #endif
 	ASSERT_EQ(argc, 4);
 	ASSERT_EQ(strcmp(argv[0], args), 0);
@@ -120,7 +120,7 @@ TEST(ParserTest, ReverseOpt) {
 	p.print();
 
 	lib::argument_parser_t::item_t * it = p.item('c');
-	log("ITEM 'c' on=%d val=|%s|\n", it->on, it->val);
+	lib::log("ITEM 'c' on=%d val=|%s|\n", it->on, it->val);
 #endif
 
 	ASSERT_EQ(p.on('a'), true) << "-a should be on";

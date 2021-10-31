@@ -7,9 +7,7 @@
 
 // #define VERBOSE
 
-#ifndef NDEBUG
-#include "../log.h"
-#endif
+#include "../lib.h" // log
 
 namespace lib {
 
@@ -62,7 +60,7 @@ struct argument_parser_t
 #endif
 #ifndef NDEBUG
 #ifdef VERBOSE
-				log("* unknown opt '%c' (\\x%x)\n", optopt, optopt);
+				lib::log("* unknown opt '%c' (\\x%x)\n", optopt, optopt);
 #endif
 #endif
 				unknown = optopt;
@@ -71,7 +69,7 @@ struct argument_parser_t
 			else if (opt == ':') {
 #ifndef NDEBUG
 #ifdef VERBOSE
-				log("* missing arg for opt '%c' (\\x%x)\n", optopt, optopts);
+				lib::log("* missing arg for opt '%c' (\\x%x)\n", optopt, optopts);
 #endif
 #endif
 				missing = optopt;
@@ -81,7 +79,7 @@ struct argument_parser_t
 #ifndef NDEBUG
 #ifdef VERBOSE
 				size_t const i = ptr - sig;
-				log("* known opt %c at %d in '%s' (%s)\n", opt, i, sig, optarg);
+				lib::log("* known opt %c at %d in '%s' (%s)\n", opt, i, sig, optarg);
 				if (optarg) items[i].val = optarg;
 				else items[i].on = true;
 #else
@@ -111,13 +109,13 @@ struct argument_parser_t
 			if (sig[i] == ':') continue;
 			// else if (!items[i].val.empty())
 			else if (items[i].val)
-				// log("%d : OPT %c = |%s|\n", i, sig[i], items[i].val.c_str());
-				log("%d : OPT %c = |%s|\n", i, sig[i], items[i].val);
+				// lib::log("%d : OPT %c = |%s|\n", i, sig[i], items[i].val.c_str());
+				lib::log("%2d : OPT %c = |%s|\n", i, sig[i], items[i].val);
 			else
-				log("%d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
+				lib::log("%2d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
 		}
 		for (size_t i=0; i<argscount; ++i)
-			log("ARG %d : |%s|\n", i, argv[i+argsbegin]);
+			lib::log("%2d : ARG |%s|\n", i+1, argv[i+argsbegin]);
 #endif
 	}
 
