@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../lib/argument_parser/argument_parser_t.h"
+#include "../lib/argument_parser_t.h"
 
 #define DEFAULT_COLORS "ff0000/0000ff/ffaaaa/aaaaff"
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-// #include "../lib.h" // log, print_argv
+// #include "lib.h" // log, print_argv
 
 namespace lib {
 

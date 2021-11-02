@@ -3,7 +3,7 @@
 #include <shellapi.h>
 #include <assert.h>
 #include <gtest/gtest.h>
-#include "shlex_t.h"
+#include "../shlex_t.h"
 
 // #include "../lib.h" // log
 

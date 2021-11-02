@@ -7,7 +7,13 @@
 
 // #define VERBOSE
 
-#include "../lib.h" // log
+#ifdef NDEBUG
+#ifdef VERBOSE
+#undef VERBOSE
+#endif
+#endif
+
+#include "lib.h" // log
 
 namespace lib {
 
@@ -49,7 +55,6 @@ struct argument_parser_t
 
 		while ((opt = getopt(argc, argv, sig)) != -1)
 		{
-#ifndef NDEBUG
 #ifdef VERBOSE
 			char const * const ptr = strchr(sig, opt);
 			if (!ptr) {
@@ -57,26 +62,20 @@ struct argument_parser_t
 			item_t * it = item(opt);
 			if (opt == '?') {
 #endif
-#endif
-#ifndef NDEBUG
 #ifdef VERBOSE
 				lib::log("* unknown opt '%c' (\\x%x)\n", optopt, optopt);
-#endif
 #endif
 				unknown = optopt;
 				return false;
 			}
 			else if (opt == ':') {
-#ifndef NDEBUG
 #ifdef VERBOSE
 				lib::log("* missing arg for opt '%c' (\\x%x)\n", optopt, optopts);
-#endif
 #endif
 				missing = optopt;
 				return false;
 			}
 			else {
-#ifndef NDEBUG
 #ifdef VERBOSE
 				size_t const i = ptr - sig;
 				lib::log("* known opt %c at %d in '%s' (%s)\n", opt, i, sig, optarg);
@@ -86,17 +85,14 @@ struct argument_parser_t
 				if (optarg) it->val = optarg;
 				else it->on = true;
 #endif
-#endif
 			}
 		}
 
 		argsbegin = optind;
 		argscount = argc - optind;
 
-#ifndef NDEBUG
 #ifdef VERBOSE
 		print();
-#endif
 #endif
 		return true;
 	}
@@ -115,7 +111,7 @@ struct argument_parser_t
 				lib::log("%2d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
 		}
 		for (size_t i=0; i<argscount; ++i)
-			lib::log("%2d : ARG |%s|\n", i+1, argv[i+argsbegin]);
+			lib::log("%2d : ARG |%s|\n", i, argv[i+argsbegin]);
 #endif
 	}
 

@@ -7,11 +7,18 @@
 #include "lib/gdi.h"
 #include "lib/memory_dc_t.h"
 #include "app/args_t.h"
+#include "app/theme_t.h"
 
 #include "fen.h"
 #include "bitmap.h"
 #include "grid_t.h"
 #include "chessfont_t.h"
+
+// FIXME: Split up lib::log into lib::print and lib::trace. Both printing
+//	to stderr with only the latter being conditional on NDEBUG.
+
+// FIXME: The TextOUt logic doesn't have a way of distinguishing yet between
+//	dark and light pieces, so it draws them the same way (i.e. theme.dp).
 
 int main(int argc, char ** argv)
 {
@@ -21,6 +28,11 @@ int main(int argc, char ** argv)
 	if (!parse_args(args, argc, argv))
 		return EXIT_FAILURE;
 	// print_args(args);
+
+	theme_t theme;
+	int const count = theme.parse(args.colors);
+	lib::log("THEME: %d COLORS matched\n", count);
+	theme.print();
 
 	lib::log("fen raw: |%s|\n", args.fen);
 	char raw[64+1] = {0};
@@ -70,8 +82,10 @@ int main(int argc, char ** argv)
 	SelectObject(dc, GetStockObject(DC_BRUSH));
 	SetBkMode(dc, TRANSPARENT);
 
-	COLORREF const dk = RGB(209,209,209);
-	COLORREF const lt = RGB(253,183,183);
+	COLORREF const dk = theme.ds ? theme.ds : RGB(209,209,209);
+	COLORREF const lt = theme.ls ? theme.ls : RGB(253,183,183);
+	COLORREF const dp = theme.dp ? theme.dp : RGB(220,160,90);
+	// COLORREF const lp = theme.lp ? theme.lp : RGB(220,160,90);
 
 	// HPEN pen = CreatePen(PS_SOLID, gap >> 1, RGB(220,100,100));
 	// SelectObject(dc, pen);
@@ -93,7 +107,7 @@ int main(int argc, char ** argv)
 			SelectObject(dc, GetStockObject(NULL_PEN));
 			Rectangle(dc, r.left, r.top, r.right, r.bottom);
 
-			SetTextColor(dc, RGB(220,160,90));
+			SetTextColor(dc, dp);
 			TextOut(dc, r.left + m.cx, r.top + m.cy, fen_buf, 1);
 		}
 

@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <gtest/gtest.h>
-#include "argument_parser_t.h"
+#include "../argument_parser_t.h"
 
 #include "../lib.h" // log, print_argv
 
