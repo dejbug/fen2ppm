@@ -14,6 +14,27 @@
 
 char const fen_0[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+struct memory_dc_t
+{
+	HDC mdc = NULL;
+	HBITMAP bmp = NULL;
+
+	~memory_dc_t()
+	{
+		if (bmp)
+		{
+			if (mdc) SelectObject(mdc, (HBITMAP)NULL);
+			DeleteObject(bmp);
+			bmp = NULL;
+		}
+		if (mdc)
+		{
+			DeleteDC(mdc);
+			mdc = NULL;
+		}
+	}
+};
+
 int main(int argc, char ** argv)
 {
 	lib::print_argv(argv);
@@ -40,17 +61,28 @@ int main(int argc, char ** argv)
 	lib::log("Memory HBITMAP: %p\n", (void *)bmp);
 	SelectObject(mdc, bmp);
 
+	// TODO: Replace the previous block with a single object.
+	memory_dc_t dc_auto_deleter;
+	dc_auto_deleter.mdc = mdc;
+	dc_auto_deleter.bmp = bmp;
+
 	grid_t grid;
 	grid.set_size(8, 8);
 	grid.set_square_size(args.square_size, args.gap);
 
 	chessfont_t font;
-	lib::log("Chess font path is |%s|.\n", args.font);
 	if (!font.install(args.font))
+	{
+		lib::log("! \"%s\" is neither a font path nor a font face name.\n", args.font);
 		return EXIT_FAILURE;
-	lib::log("Chess font facename is |%s|.\n", font.name);
+	}
+	if (font.path) lib::log("Chess font path is |%s|.\n", font.path);
+	if (font.name) lib::log("Chess font facename is |%s|.\n", font.name);
 	if (!font.create(args.square_size))
+	{
+		lib::log("! Was unable to instantiate font \"%s\".\n", font.name);
 		return EXIT_FAILURE;
+	}
 	lib::log("Chess font handle is %p\n", (void *)font.handle);
 
 	SelectObject(mdc, font.handle);

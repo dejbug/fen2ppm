@@ -5,9 +5,6 @@
 #define FOT_PATH "FEN2PPM.TEMP.FOT"
 
 
-bool find_text_in_file(FILE * file, char const * text);
-
-
 struct chessfont_t
 {
 	HFONT handle = nullptr;
@@ -105,7 +102,7 @@ struct chessfont_t
 		LONG const rest = ftell(file) - mark;
 		fseek(file, mark, SEEK_SET);
 
-		if (find_text_in_file(file, "FONTRES:"))
+		if (lib::find_text_in_file(file, "FONTRES:"))
 		{
 			result = true;
 			fgets(name, std::min((LONG)MAX_PATH, rest), file);
@@ -139,8 +136,11 @@ struct chessfont_t
 		}
 		else
 		{
+			if (!lib::font_exists(path)) return false;
+
 			set_path(nullptr);
 			set_name(path); // TODO: set_name(notdir(path));
+
 		}
 		return true;
 	}
@@ -184,32 +184,3 @@ struct chessfont_t
 		return true;
 	}
 };
-
-
-bool find_text_in_file(FILE * file, char const * text)
-{
-	if (!file) return false;
-	if (!text || !*text) return false;
-
-	int const len = strlen(text);
-	int pos = 0;
-	int c;
-	size_t const mark = ftell(file);
-	size_t start = mark;
-
-	while (EOF != (c = fgetc(file)))
-	{
-		if (c == text[pos]) ++pos;
-
-		else if (pos)
-		{
-			fseek(file, ++start, SEEK_SET);
-			pos = 0;
-		}
-
-		if (pos >= len) return true;
-	}
-
-	fseek(file, mark, SEEK_SET);
-	return false;
-}
