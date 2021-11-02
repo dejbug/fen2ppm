@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm> // std::min
+#include "lib/lib.h"
 
 #define FOT_PATH "FEN2PPM.TEMP.FOT"
 
@@ -12,6 +13,7 @@ struct chessfont_t
 	HFONT handle = nullptr;
 	char name[MAX_PATH+1];
 	char path[MAX_PATH+1];
+	bool from_file = false;
 
 	// operator HFONT() const { return handle; }
 
@@ -116,16 +118,30 @@ struct chessfont_t
 
 	bool install(char const * path, bool notify=false)
 	{
-		DeleteFile(FOT_PATH);
 		set_path(path);
-		CreateScalableFontResource(1,FOT_PATH,path,0);
-		if (0 == AddFontResource(path)) return false;
+		from_file = lib::file_exists(path);
+		if (from_file)
+		{
+			// FIXME: Deleting is necessary so we don't load an older font from
+			// a .FOT relic. But make sure whatever is at FOT_PATH is in a temporary
+			// folder. Also try to make the name unique to our application (e.g.
+			// "fen2ppm-<randomstring>.fot").
+			DeleteFile(FOT_PATH);
 
-		// This seems to be causing trouble. Perhaps we need to copy
-		// the font file into the windows\font folder first? We don't need this.
-		// if (notify) SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
+			if (!CreateScalableFontResource(1,FOT_PATH,path,0)) return false;
+			if (0 == AddFontResource(path)) return false;
 
-		extract_name(FOT_PATH, name, sizeof(name));
+			// This seems to be causing trouble. Perhaps we need to copy
+			// the font file into the windows\font folder first? We don't need this.
+			// if (notify) SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
+
+			if (!extract_name(FOT_PATH, name, sizeof(name))) return false;
+		}
+		else
+		{
+			set_path(nullptr);
+			set_name(path); // TODO: set_name(notdir(path));
+		}
 		return true;
 	}
 

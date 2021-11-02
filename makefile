@@ -14,7 +14,7 @@ CXXFLAGS += -Wl,--subsystem=console
 LDFLAGS := -lgdi32
 
 deploy/$(NAME).exe : build/main.o | deploy
-build/main.o : main.cpp *.h lib/*.h lib/*/*.h | build
+build/main.o : main.cpp *.h lib/*.h lib/*/*.h app/*.h | build
 
 deploy : ; IF NOT EXIST $@ MKDIR $@
 build : ; IF NOT EXIST $@ MKDIR $@

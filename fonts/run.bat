@@ -1,8 +1,8 @@
 @ECHO OFF
-REM Run this from the root folder like "> fonts/run.bat Merida".
+REM Run this from anywhere like "c:\fen2ppm> fonts/run.bat Merida".
 
 SET JUMP=
-SET FONT=.\fonts
+SET FONT=%~dp0
 
 SET MAP="opmnvbtrwqlk"
 SET ARG_S=128
@@ -22,32 +22,32 @@ ECHO FACE: Alpha, Berlin, Kingdom, Leipzig, Merida.
 GOTO :EOF
 
 :Run
-SET CMD=deploy\fen2ppm.exe -f %FONT% -t %MAP% -o %ARG_O% -s %ARG_S% -c %ARG_C% "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+SET CMD=deploy\fen2ppm.exe -f %FONT% -t %MAP% -o %ARG_O% -s %ARG_S% -c %ARG_C% -g 0 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 ECHO %CMD%
 %CMD%
 GOTO :EOF
 
 :Alpha
-SET FONT=%FONT%\Alpha.ttf
+SET FONT=%FONT%Alpha.ttf
 SET MAP="opjhnbtrwqlk"
 GOTO :Run
 
 :Berlin
-SET FONT=%FONT%\Berlin.ttf
+SET FONT=%FONT%Berlin.ttf
 SET MAP="opjhnbtrwqlk"
 GOTO :Run
 
 :Kingdom
-SET FONT=%FONT%\KINGFONT.TTF
+SET FONT=%FONT%KINGFONT.TTF
 SET MAP="opmnvbtrwqlk"
 GOTO :Run
 
 :Leipzig
-SET FONT=%FONT%\LEIPFONT.TTF
+SET FONT=%FONT%LEIPFONT.TTF
 SET MAP="opmnvbtrwqlk"
 GOTO :Run
 
 :Merida
-SET FONT=%FONT%\MERIFONTNEW.TTF
+SET FONT=%FONT%MERIFONTNEW.TTF
 SET MAP="opmnvbtrwqlk"
 GOTO :Run

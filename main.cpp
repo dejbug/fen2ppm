@@ -5,7 +5,7 @@
 
 #include "lib/lib.h"
 #include "lib/gdi.h"
-#include "lib/argument_parser/argument_parser_t.h"
+#include "app/args_t.h"
 
 #include "fen.h"
 #include "bitmap.h"
@@ -18,27 +18,16 @@ int main(int argc, char ** argv)
 {
 	lib::print_argv(argv);
 
-	lib::argument_parser_t args("c:f:o:s:t:vh");
-	if (!args.parse(argc, argv))
-	{
-		if (args.unknown)
-			lib::log("%s: error: unknown option '%c' (\\x%x)\n", argv[0], args.unknown, args.unknown);
-		else if (args.missing)
-			lib::log("%s: error: missing argument for option '%c' (\\x%x)\n", argv[0], args.missing, args.missing);
+	args_t args;
+	if (!parse_args(args, argc, argv))
 		return EXIT_FAILURE;
-	}
+	print_args(args);
 
-	args.print();
-
-	size_t const square_size = atoi(args.opt('s'));
-	size_t const gap = 0;
-	size_t const image_size = (square_size + gap) * 8;
-
-	lib::log("fen raw: |%s|\n", args.arg(0));
+	lib::log("fen raw: |%s|\n", args.fen);
 	char buf[64+1] = {0};
-	fen_unpack(buf, args.arg(0));
+	fen_unpack(buf, args.fen);
 	lib::log("fen unp: |%s|\n", buf);
-	fen_translate(buf, args.opt('t'));
+	fen_translate(buf, args.map);
 	lib::log("fen map: |%s|\n", buf);
 
 	context_t ct;
@@ -47,18 +36,21 @@ int main(int argc, char ** argv)
 	HDC mdc = CreateCompatibleDC(ct.dc);
 	lib::log("Memory HDC: %p\n", (void *)mdc);
 	// ct.free();
-	HBITMAP bmp = CreateCompatibleBitmap(ct.dc, image_size, image_size);
+	HBITMAP bmp = CreateCompatibleBitmap(ct.dc, args.image_size, args.image_size);
 	lib::log("Memory HBITMAP: %p\n", (void *)bmp);
 	SelectObject(mdc, bmp);
 
 	grid_t grid;
 	grid.set_size(8, 8);
-	grid.set_square_size(square_size, gap);
+	grid.set_square_size(args.square_size, args.gap);
 
 	chessfont_t font;
-	font.install(args.opt('f'));
+	lib::log("Chess font path is |%s|.\n", args.font);
+	if (!font.install(args.font))
+		return EXIT_FAILURE;
 	lib::log("Chess font facename is |%s|.\n", font.name);
-	font.create(square_size);
+	if (!font.create(args.square_size))
+		return EXIT_FAILURE;
 	lib::log("Chess font handle is %p\n", (void *)font.handle);
 
 	SelectObject(mdc, font.handle);
@@ -92,10 +84,10 @@ int main(int argc, char ** argv)
 			TextOut(mdc, r.left + m.cx, r.top + m.cy, fen_buf, 1);
 		}
 
-	if (args.opt('o'))
+	if (args.out_path)
 	{
 		lib::log("* WRITING\n");
-		FILE * outfile = fopen(args.opt('o'), "wb");
+		FILE * outfile = fopen(args.out_path, "wb");
 		dump_bitmap_data(mdc, bmp, outfile);
 		fclose(outfile);
 	}

@@ -14,6 +14,7 @@ template<> void log(char const * format, ...)
 	va_end(list);
 #endif
 }
+
 template<> void log(wchar_t const * format, ...)
 {
 #ifndef NDEBUG
@@ -23,7 +24,6 @@ template<> void log(wchar_t const * format, ...)
 	va_end(list);
 #endif
 }
-
 
 template<typename T> void print_argv(T ** argv);
 template<> void print_argv<>(char ** argv)
@@ -38,6 +38,14 @@ template<> void print_argv<>(wchar_t ** argv)
 	if (argv)
 		for (size_t i=0; argv[i]; ++i)
 			lib::log<>(L"%3d %p |%S|\n", i, argv[i], argv[i]);
+}
+
+bool file_exists(char const * path)
+{
+	FILE * f = fopen(path, "rb");
+	if (!f) return false;
+	fclose(f);
+	return true;
 }
 
 } // lib
