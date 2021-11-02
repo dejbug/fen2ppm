@@ -6,7 +6,7 @@
 #define DEFAULT_FONT "MERIFONTNEW.TTF"
 #define DEFAULT_GAP 0
 #define DEFAULT_MAP "opmnvbtrwqlk"
-#define DEFAULT_OUT_PATH "fen.ppm"
+#define DEFAULT_OUT_PATH NULL
 #define DEFAULT_SQUARE_SIZE 64
 
 struct args_t

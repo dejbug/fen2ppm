@@ -32,7 +32,8 @@ int main(int argc, char ** argv)
 	lib::log("fen unp: |%s|\n", raw);
 	if (!args.map || !fen_translate(raw, args.map))
 	{
-		lib::log("! Was unable to translate FEN \"%s\" with map: \"%s\"\n", args.fen, args.map);
+		lib::log("! Was unable to translate FEN \"%s\" with map: \"%s\"\n",
+			args.fen, args.map);
 		return EXIT_FAILURE;
 	}
 	lib::log("fen map: |%s|\n", raw);
