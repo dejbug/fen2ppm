@@ -6,31 +6,6 @@
 #define RED(c) ((unsigned char)(((c) >> 16) & 0xff))
 #define ALPHA(c) ((unsigned char)(((c) >> 24) & 0xff))
 
-
-struct context_t
-{
-	HWND dh = nullptr;
-	HDC dc = nullptr;
-
-	~context_t()
-	{
-		free();
-	}
-
-	bool init()
-	{
-		dh = GetDesktopWindow();
-		dc = GetDC(dh);
-		return dc;
-	}
-
-	void free()
-	{
-		if (dc) DeleteDC(dc);
-	}
-};
-
-
 bool get_bitmap_info(HDC dc, HBITMAP bmp, BITMAPINFO & bi)
 {
 	BITMAPINFOHEADER & ih = bi.bmiHeader;

@@ -5,35 +5,13 @@
 
 #include "lib/lib.h"
 #include "lib/gdi.h"
+#include "lib/memory_dc_t.h"
 #include "app/args_t.h"
 
 #include "fen.h"
 #include "bitmap.h"
 #include "grid_t.h"
 #include "chessfont_t.h"
-
-char const fen_0[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-struct memory_dc_t
-{
-	HDC mdc = NULL;
-	HBITMAP bmp = NULL;
-
-	~memory_dc_t()
-	{
-		if (bmp)
-		{
-			if (mdc) SelectObject(mdc, (HBITMAP)NULL);
-			DeleteObject(bmp);
-			bmp = NULL;
-		}
-		if (mdc)
-		{
-			DeleteDC(mdc);
-			mdc = NULL;
-		}
-	}
-};
 
 int main(int argc, char ** argv)
 {
@@ -51,20 +29,14 @@ int main(int argc, char ** argv)
 	fen_translate(buf, args.map);
 	lib::log("fen map: |%s|\n", buf);
 
-	context_t ct;
-	if (!ct.init()) return 1;
-	lib::log("Desktop HWND: %p / DC: %p\n", (void *)ct.dh, (void *)ct.dc);
-	HDC mdc = CreateCompatibleDC(ct.dc);
-	lib::log("Memory HDC: %p\n", (void *)mdc);
-	// ct.free();
-	HBITMAP bmp = CreateCompatibleBitmap(ct.dc, args.image_size, args.image_size);
-	lib::log("Memory HBITMAP: %p\n", (void *)bmp);
-	SelectObject(mdc, bmp);
-
-	// TODO: Replace the previous block with a single object.
-	memory_dc_t dc_auto_deleter;
-	dc_auto_deleter.mdc = mdc;
-	dc_auto_deleter.bmp = bmp;
+	memory_dc_t mdc;
+	if (!mdc.create(args.image_size))
+	{
+		lib::log("! Was unable to create DC.\n");
+		return EXIT_FAILURE;
+	}
+	HDC const dc = mdc.dc;
+	HBITMAP const bmp = mdc.bmp;
 
 	grid_t grid;
 	grid.set_size(8, 8);
@@ -85,18 +57,18 @@ int main(int argc, char ** argv)
 	}
 	lib::log("Chess font handle is %p\n", (void *)font.handle);
 
-	SelectObject(mdc, font.handle);
-	SelectObject(mdc, GetStockObject(DC_BRUSH));
-	SetBkMode(mdc, TRANSPARENT);
+	SelectObject(dc, font.handle);
+	SelectObject(dc, GetStockObject(DC_BRUSH));
+	SetBkMode(dc, TRANSPARENT);
 
 	COLORREF const dk = RGB(209,209,209);
 	COLORREF const lt = RGB(253,183,183);
 
 	// HPEN pen = CreatePen(PS_SOLID, gap >> 1, RGB(220,100,100));
-	// SelectObject(mdc, pen);
+	// SelectObject(dc, pen);
 
 	SIZE m = {0, 0};
-	lib::calc_text_centering_margins(mdc, grid.edge, grid.edge, m, lib::CenteringMode::MAX);
+	lib::calc_text_centering_margins(dc, grid.edge, grid.edge, m, lib::CenteringMode::MAX);
 
 	size_t fen_i=0;
 	char fen_buf[2] = {'\0', '\0'};
@@ -108,31 +80,26 @@ int main(int argc, char ** argv)
 
 			RECT r;
 			grid.get_square_rect(r, col, row);
-			SetDCBrushColor(mdc, ((row + col) % 2 == 0) ? lt : dk);
-			SelectObject(mdc, GetStockObject(NULL_PEN));
-			Rectangle(mdc, r.left, r.top, r.right, r.bottom);
+			SetDCBrushColor(dc, ((row + col) % 2 == 0) ? lt : dk);
+			SelectObject(dc, GetStockObject(NULL_PEN));
+			Rectangle(dc, r.left, r.top, r.right, r.bottom);
 
-			SetTextColor(mdc, RGB(220,160,90));
-			TextOut(mdc, r.left + m.cx, r.top + m.cy, fen_buf, 1);
+			SetTextColor(dc, RGB(220,160,90));
+			TextOut(dc, r.left + m.cx, r.top + m.cy, fen_buf, 1);
 		}
 
 	if (args.out_path)
 	{
 		lib::log("* WRITING\n");
 		FILE * outfile = fopen(args.out_path, "wb");
-		dump_bitmap_data(mdc, bmp, outfile);
+		dump_bitmap_data(dc, bmp, outfile);
 		fclose(outfile);
 	}
 	else
 	{
 		lib::log("* PRINTING\n");
-		dump_bitmap_data(mdc, bmp, stdout);
+		dump_bitmap_data(dc, bmp, stdout);
 	}
-
-	font.free();
-	font.uninstall();
-	if (bmp) DeleteObject(bmp);
-	if (mdc) DeleteDC(mdc);
 
 	return EXIT_SUCCESS;
 }

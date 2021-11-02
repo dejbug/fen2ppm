@@ -11,18 +11,23 @@ struct chessfont_t
 	char name[MAX_PATH+1];
 	char path[MAX_PATH+1];
 	bool from_file = false;
+	bool installed = false;
+
+	~chessfont_t() { free(); uninstall(); }
 
 	// operator HFONT() const { return handle; }
 
 	void set_name(char const * text)
 	{
-		strncpy_s(name, MAX_PATH, text, MAX_PATH);
+		if (!text || !*text) name[0] = '\0';
+		else strncpy_s(name, MAX_PATH, text, MAX_PATH);
 		name[MAX_PATH] = '\0';
 	}
 
 	void set_path(char const * text)
 	{
-		strncpy_s(path, MAX_PATH, text, MAX_PATH);
+		if (!text || !*text) path[0] = '\0';
+		else strncpy_s(path, MAX_PATH, text, MAX_PATH);
 		path[MAX_PATH] = '\0';
 	}
 
@@ -115,6 +120,9 @@ struct chessfont_t
 
 	bool install(char const * path, bool notify=false)
 	{
+		free();
+		uninstall();
+
 		set_path(path);
 		from_file = lib::file_exists(path);
 		if (from_file)
@@ -142,15 +150,17 @@ struct chessfont_t
 			set_name(path); // TODO: set_name(notdir(path));
 
 		}
-		return true;
+		return installed = true;
 	}
 
-	bool uninstall()
+	void uninstall()
 	{
+		if (!installed) return;
 		RemoveFontResource(path);
 		DeleteFile(FOT_PATH);
-		set_path(0);
-		return true;
+		set_path(NULL);
+		installed = false;
+		lib::log("* free: Chessfont (uninstall)\n");
 	}
 
 	bool create(int size)
@@ -178,9 +188,10 @@ struct chessfont_t
 		return create(name, size);
 	}
 
-	bool free()
+	void free()
 	{
-		if (handle) DeleteObject(handle), handle = 0;
-		return true;
+		if (!handle) return;
+		DeleteObject(handle), handle = 0;
+		lib::log("* free: Chessfont (uncreate)\n");
 	}
 };
