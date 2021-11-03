@@ -1,5 +1,5 @@
 #pragma once
-#include "../lib/lib.h"
+#include "../lib/out.h"
 
 // FIXME: COLORREF is in 0x00bbggrr format but user will want 0x00rrggbb.
 // FIXME: The 3-digit colors need to be stretched.
@@ -66,8 +66,8 @@ struct theme_t
 		}
 		return valid;
 	}
-
-	void print()
+	
+	void print() const
 	{
 		lib::log("THEME: ds=%08x, ls=%08x, dp=%08x, lp=%08x\n", ds, ls, dp, lp);
 	}

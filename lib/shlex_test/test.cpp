@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include "../shlex_t.h"
 
-// #include "../lib.h" // log
+// #include "../out.h" // log
 
 int main(int _, char ** argv_)
 {
@@ -30,7 +30,7 @@ TEST(ShlexTest, Simple) {
 	// wprintf(L"wcl |%S|\n", wcl);
 	lib::shlex_t shlex;
 	shlex.parse(wcl);
-	// shlex.print();
+	shlex.print();
 	ASSERT_EQ(shlex.count(), 4);
 	// for (size_t i=0; i<shlex.count(); ++i)
 	// 	printf("%2d : |%s|\n", i, shlex.get(i));

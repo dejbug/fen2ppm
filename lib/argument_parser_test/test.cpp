@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "../argument_parser_t.h"
 
-#include "../lib.h" // log, print_argv
+#include "../out.h" // log, print_argv
 
 #define VERBOSE
 #define MAX_ARGV 8
@@ -27,13 +27,6 @@ size_t argv_from_args(char * argv[MAX_ARGV], char * args)
 		argc = MAX_ARGV - 1;
 	argv[argc] = 0;
 	return argc;
-}
-
-void print_argv(char ** argv)
-{
-	if (argv)
-		for (size_t i=0; argv[i]; ++i)
-			lib::log("%3d %p |%s|\n", i, argv[i], argv[i]);
 }
 
 int main(int _, char ** argv_)
@@ -82,7 +75,7 @@ TEST(ParserTest, SimplePos) {
 	lib::argument_parser_t p("abc:");
 	p.parse(argc, argv);
 #ifdef VERBOSE
-	print_argv(argv);
+	lib::print_argv(argv);
 	p.print();
 #endif
 	ASSERT_EQ(p.on('a'), false) << "-a should be off";
@@ -99,7 +92,7 @@ TEST(ParserTest, ReverseOptFlags) {
 	lib::argument_parser_t p("abc:");
 	p.parse(argc, argv);
 #ifdef VERBOSE
-	print_argv(argv);
+	lib::print_argv(argv);
 	p.print();
 #endif
 	ASSERT_EQ(p.on('a'), true) << "-a should be on";
@@ -116,7 +109,7 @@ TEST(ParserTest, ReverseOpt) {
 	lib::argument_parser_t p("abc:");
 	p.parse(argc, argv);
 #ifdef VERBOSE
-	print_argv(argv);
+	lib::print_argv(argv);
 	p.print();
 
 	lib::argument_parser_t::item_t * it = p.item('c');
@@ -139,7 +132,7 @@ TEST(ParserTest, ReverseOptAndPos) {
 	lib::argument_parser_t p("abc:");
 	p.parse(argc, argv);
 #ifdef VERBOSE
-	print_argv(argv);
+	lib::print_argv(argv);
 	p.print();
 #endif
 	ASSERT_EQ(p.on('a'), true) << "-a should be on";

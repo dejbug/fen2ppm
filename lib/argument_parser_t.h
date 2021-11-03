@@ -13,7 +13,7 @@
 #endif
 #endif
 
-#include "lib.h" // log
+#include "out.h" // log
 
 namespace lib {
 
@@ -97,24 +97,6 @@ struct argument_parser_t
 		return true;
 	}
 
-	void print()
-	{
-#ifndef NDEBUG
-		for (size_t i=0; i<siglen; ++i)
-		{
-			if (sig[i] == ':') continue;
-			// else if (!items[i].val.empty())
-			else if (items[i].val)
-				// lib::log("%d : OPT %c = |%s|\n", i, sig[i], items[i].val.c_str());
-				lib::log("%2d : OPT %c = |%s|\n", i, sig[i], items[i].val);
-			else
-				lib::log("%2d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
-		}
-		for (size_t i=0; i<argscount; ++i)
-			lib::log("%2d : ARG |%s|\n", i, argv[i+argsbegin]);
-#endif
-	}
-
 	item_t * item(char opt)
 	{
 		char const * const ptr = strchr(sig, opt);
@@ -151,6 +133,24 @@ struct argument_parser_t
 		if (i < argscount)
 			return argv[argsbegin+i];
 		return nullptr;
+	}
+
+	void print() const
+	{
+#ifndef NDEBUG
+		for (size_t i=0; i<siglen; ++i)
+		{
+			if (sig[i] == ':') continue;
+			// else if (!items[i].val.empty())
+			else if (items[i].val)
+				// lib::log("%d : OPT %c = |%s|\n", i, sig[i], items[i].val.c_str());
+				lib::log("%2d : OPT %c = |%s|\n", i, sig[i], items[i].val);
+			else
+				lib::log("%2d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
+		}
+		for (size_t i=0; i<argscount; ++i)
+			lib::log("%2d : ARG |%s|\n", i, argv[i+argsbegin]);
+#endif
 	}
 };
 

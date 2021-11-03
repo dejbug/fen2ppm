@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-// #include "lib.h" // log, print_argv
+#include "out.h" // print_argv
 
 namespace lib {
 
@@ -73,10 +73,12 @@ struct shlex_t
 
 	void print() const
 	{
+#ifndef NDEBUG
 		printf("shlex_t{text=\"");
 		for (size_t off : offsets)
 			printf("%s\\0", text+off);
 		printf("\", length=%d, count()=%d}\n", length, count());
+#endif
 	}
 };
 

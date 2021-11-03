@@ -5,6 +5,7 @@
 
 #include "lib/lib.h"
 #include "lib/gdi.h"
+#include "lib/out.h"
 #include "lib/memory_dc_t.h"
 #include "app/args_t.h"
 #include "app/theme_t.h"
@@ -17,7 +18,7 @@
 // FIXME: Split up lib::log into lib::print and lib::trace. Both printing
 //	to stderr with only the latter being conditional on NDEBUG.
 
-// FIXME: The TextOUt logic doesn't have a way of distinguishing yet between
+// FIXME: The TextOut logic doesn't have a way of distinguishing yet between
 //	dark and light pieces, so it draws them the same way (i.e. theme.dp).
 
 int main(int argc, char ** argv)
@@ -25,9 +26,9 @@ int main(int argc, char ** argv)
 	// lib::print_argv(argv);
 
 	args_t args;
-	if (!parse_args(args, argc, argv))
+	if (!args.parse(argc, argv))
 		return EXIT_FAILURE;
-	// print_args(args);
+	args.print();
 
 	theme_t theme;
 	int const count = theme.parse(args.colors);
@@ -38,13 +39,13 @@ int main(int argc, char ** argv)
 	char raw[64+1] = {0};
 	if (!args.fen || !*args.fen || !fen_unpack(raw, args.fen))
 	{
-		lib::log("! Was unable to unpack FEN: \"%s\"\n", args.fen);
+		lib::err("! Was unable to unpack FEN: \"%s\"\n", args.fen);
 		return EXIT_FAILURE;
 	}
 	lib::log("fen unp: |%s|\n", raw);
 	if (!args.map || !fen_translate(raw, args.map))
 	{
-		lib::log("! Was unable to translate FEN \"%s\" with map: \"%s\"\n",
+		lib::err("! Was unable to translate FEN \"%s\" with map: \"%s\"\n",
 			args.fen, args.map);
 		return EXIT_FAILURE;
 	}
@@ -53,7 +54,7 @@ int main(int argc, char ** argv)
 	memory_dc_t mdc;
 	if (!mdc.create(args.image_size))
 	{
-		lib::log("! Was unable to create DC.\n");
+		lib::err("! Was unable to create DC.\n");
 		return EXIT_FAILURE;
 	}
 	HDC const dc = mdc.dc;
@@ -66,14 +67,14 @@ int main(int argc, char ** argv)
 	chessfont_t font;
 	if (!font.install(args.font))
 	{
-		lib::log("! \"%s\" is neither a font path nor a font face name.\n", args.font);
+		lib::err("! \"%s\" is neither a font path nor a font face name.\n", args.font);
 		return EXIT_FAILURE;
 	}
 	if (font.path) lib::log("Chess font path is |%s|.\n", font.path);
 	if (font.name) lib::log("Chess font facename is |%s|.\n", font.name);
 	if (!font.create(args.square_size))
 	{
-		lib::log("! Was unable to instantiate font \"%s\".\n", font.name);
+		lib::err("! Was unable to instantiate font \"%s\".\n", font.name);
 		return EXIT_FAILURE;
 	}
 	lib::log("Chess font handle is %p\n", (void *)font.handle);

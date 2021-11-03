@@ -20,59 +20,60 @@ struct args_t
 	int square_size = 0;
 	int image_size = 0;
 	bool ok = false;
-};
 
-bool parse_args(args_t & args, int argc, char ** argv)
-{
-	args.ok = false;
-
-	lib::argument_parser_t parser("c:f:g:o:s:t:vh");
-	if (!parser.parse(argc, argv))
+	bool parse(int argc, char ** argv)
 	{
-		if (parser.unknown)
+		ok = false;
+
+		lib::argument_parser_t parser("c:f:g:o:s:t:vh");
+		if (!parser.parse(argc, argv))
 		{
-			lib::log("%s: error: unknown option '%c' (\\x%x)\n",
-				argv[0], parser.unknown, parser.unknown);
+			if (parser.unknown)
+			{
+				lib::log("%s: error: unknown option '%c' (\\x%x)\n",
+					argv[0], parser.unknown, parser.unknown);
+				return false;
+			}
+			else if (parser.missing)
+			{
+				lib::log("%s: error: missing argument for option '%c' (\\x%x)\n",
+					argv[0], parser.missing, parser.missing);
+				return false;
+			}
 			return false;
 		}
-		else if (parser.missing)
-		{
-			lib::log("%s: error: missing argument for option '%c' (\\x%x)\n",
-				argv[0], parser.missing, parser.missing);
-			return false;
-		}
-		return false;
+		// parser.print();
+
+		colors = parser.opt('c');
+		if (!colors) colors = DEFAULT_COLORS;
+
+		fen = DEFAULT_FEN;
+		if (parser.arg(0)) fen = parser.arg(0);
+
+		font = DEFAULT_FONT;
+		if (parser.opt('f')) font = parser.opt('f');
+
+		gap = DEFAULT_GAP;
+		if (parser.opt('g')) gap = atoi(parser.opt('g'));
+
+		map = DEFAULT_MAP;
+		if (parser.opt('t')) map = parser.opt('t');
+
+		out_path = DEFAULT_OUT_PATH;
+		if (parser.opt('o')) out_path = parser.opt('o');
+
+		square_size = DEFAULT_SQUARE_SIZE;
+		if (parser.opt('s'))
+			square_size = atoi(parser.opt('s'));
+
+		image_size = (square_size + gap) << 3;
+
+		return true;
 	}
-	parser.print();
 
-	args.colors = parser.opt('c');
-	if (!args.colors) args.colors = DEFAULT_COLORS;
+	void print() const
+	{
+		fprintf(stderr, "args_t{colors=\"%s\", fen=\"%s\", font=\"%s\", gap=%d, map=\"%s\", out_path=\"%s\", square_size=%d, image_size=%d}\n", colors, fen, font, gap, map, out_path, square_size, image_size);
+	}
 
-	args.fen = DEFAULT_FEN;
-	if (parser.arg(0)) args.fen = parser.arg(0);
-
-	args.font = DEFAULT_FONT;
-	if (parser.opt('f')) args.font = parser.opt('f');
-
-	args.gap = DEFAULT_GAP;
-	if (parser.opt('g')) args.gap = atoi(parser.opt('g'));
-
-	args.map = DEFAULT_MAP;
-	if (parser.opt('t')) args.map = parser.opt('t');
-
-	args.out_path = DEFAULT_OUT_PATH;
-	if (parser.opt('o')) args.out_path = parser.opt('o');
-
-	args.square_size = DEFAULT_SQUARE_SIZE;
-	if (parser.opt('s'))
-		args.square_size = atoi(parser.opt('s'));
-
-	args.image_size = (args.square_size + args.gap) << 3;
-
-	return true;
-}
-
-void print_args(args_t const & args)
-{
-	fprintf(stderr, "args_t{colors=\"%s\", fen=\"%s\", font=\"%s\", gap=%d, map=\"%s\", out_path=\"%s\", square_size=%d, image_size=%d}\n", args.colors, args.fen, args.font, args.gap, args.map, args.out_path, args.square_size, args.image_size);
-}
+};
