@@ -6,14 +6,19 @@
 #define RAW_LEN 64			// Length of "unpacked" FEN (without the '\0').
 #define MAP_LEN 12			// Length of translation table (without the '\0').
 
-bool fen_unpack(char raw[RAW_LEN+1], char const * fen)
+typedef enum { None='\0', Black='b', White='w' } Side;
+
+bool fen_unpack(char raw[RAW_LEN+1], char col[RAW_LEN+1], char const * fen)
 {
+	memset(col, Side::None, RAW_LEN);
+	col[RAW_LEN] = '\0';
+
 	// ASSUME: fen is a non-empty string.
 	if (!fen || !*fen) return false;
 
 	// ASSUME: fen is zero-terminated.
 	size_t const fen_len = strlen(fen);
-	
+
 	// ASSUME: fen is long enough to represent the shortest fen.
 	if (fen_len < FEN_LEN_MIN) return false;
 
@@ -41,10 +46,19 @@ bool fen_unpack(char raw[RAW_LEN+1], char const * fen)
 				raw[raw_len++] = '-';
 			}
 		}
-		else if (strchr("qkrbnpQKRBNP", *fen))
+		else if (strchr("qkrbnp", *fen))
 		{
 			if (raw_len >= RAW_LEN) return false;
-			raw[raw_len++] = *fen;
+			col[raw_len] = Side::Black;
+			raw[raw_len] = *fen;
+			++raw_len;
+		}
+		else if (strchr("QKRBNP", *fen))
+		{
+			if (raw_len >= RAW_LEN) return false;
+			col[raw_len] = Side::White;
+			raw[raw_len] = *fen;
+			++raw_len;
 		}
 		else return false;
 	}

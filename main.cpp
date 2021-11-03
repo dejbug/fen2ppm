@@ -15,11 +15,20 @@
 #include "grid_t.h"
 #include "chessfont_t.h"
 
-// FIXME: Split up lib::log into lib::print and lib::trace. Both printing
-//	to stderr with only the latter being conditional on NDEBUG.
+// FIXME: Add a USAGE and HELP message.
 
-// FIXME: The TextOut logic doesn't have a way of distinguishing yet between
-//	dark and light pieces, so it draws them the same way (i.e. theme.dp).
+// theme_t.h
+// FIXME: COLORREF is in 0x00bbggrr format but user will want 0x00rrggbb.
+// FIXME: The 3-digit colors need to be stretched.
+// FIXME: Black is interpreted as a non-color instead of checking theme.valid.
+// FIXME: Change the struct's color-indexability into something enum based ?
+// FIXME: Move the static methods into lib ?
+
+// bitmap_t.h
+// FIXME: Test calc_bitmap_size() or find a better reference on bitmaps.
+
+// chessfont_t.h
+// FIXME: Uniquely name FOTs and put them into the system's TEMP.
 
 int main(int argc, char ** argv)
 {
@@ -36,8 +45,9 @@ int main(int argc, char ** argv)
 	theme.print();
 
 	lib::log("fen raw: |%s|\n", args.fen);
-	char raw[64+1] = {0};
-	if (!args.fen || !*args.fen || !fen_unpack(raw, args.fen))
+	char raw[RAW_LEN+1] = {0};
+	char raw_col[RAW_LEN+1] = {0};
+	if (!args.fen || !*args.fen || !fen_unpack(raw, raw_col, args.fen))
 	{
 		lib::err("! Was unable to unpack FEN: \"%s\"\n", args.fen);
 		return EXIT_FAILURE;
@@ -86,7 +96,7 @@ int main(int argc, char ** argv)
 	COLORREF const dk = theme.ds ? theme.ds : RGB(209,209,209);
 	COLORREF const lt = theme.ls ? theme.ls : RGB(253,183,183);
 	COLORREF const dp = theme.dp ? theme.dp : RGB(220,160,90);
-	// COLORREF const lp = theme.lp ? theme.lp : RGB(220,160,90);
+	COLORREF const lp = theme.lp ? theme.lp : RGB(220,160,90);
 
 	// HPEN pen = CreatePen(PS_SOLID, gap >> 1, RGB(220,100,100));
 	// SelectObject(dc, pen);
@@ -100,7 +110,7 @@ int main(int argc, char ** argv)
 	for (size_t row=0; row<8; ++row)
 		for (size_t col=0; col<8; ++col)
 		{
-			fen_buf[0] = raw[fen_i++];
+			fen_buf[0] = raw[fen_i];
 
 			RECT r;
 			grid.get_square_rect(r, col, row);
@@ -108,8 +118,10 @@ int main(int argc, char ** argv)
 			SelectObject(dc, GetStockObject(NULL_PEN));
 			Rectangle(dc, r.left, r.top, r.right, r.bottom);
 
-			SetTextColor(dc, dp);
+			SetTextColor(dc, raw_col[fen_i] == 'w' ? lp : dp);
 			TextOut(dc, r.left + m.cx, r.top + m.cy, fen_buf, 1);
+
+			++fen_i;
 		}
 
 	if (args.out_path)

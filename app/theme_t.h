@@ -1,12 +1,6 @@
 #pragma once
 #include "../lib/out.h"
 
-// FIXME: COLORREF is in 0x00bbggrr format but user will want 0x00rrggbb.
-// FIXME: The 3-digit colors need to be stretched.
-// FIXME: Black is interpreted as a non-color instead of checking theme.valid.
-// FIXME: Change the struct's color-indexability into something enum based ?
-// FIXME: Move the static methods into lib ?
-
 struct theme_t
 {
 	COLORREF ds = 0, ls = 0, dp = 0, lp = 0;
