@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm> // std::min
-#include "lib/lib.h" // log, find_text_in_file
-#include "lib/gdi.h" // font_exists
+#include "lib.h" // log, find_text_in_file
+#include "gdi.h" // font_exists
 
 #define FOT_PATH "FEN2PPM.TEMP.FOT"
 

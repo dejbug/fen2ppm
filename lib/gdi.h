@@ -1,6 +1,6 @@
-// Needs: -lgdi32
 #pragma once
 #include <windows.h>
+// Needs: -lgdi32
 
 namespace lib {
 

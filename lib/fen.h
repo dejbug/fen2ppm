@@ -1,6 +1,6 @@
 #pragma once
 #include <assert.h>
-#include "lib/lib.h"
+#include "lib.h"
 
 #define FEN_LEN_MAX 64+8	// A board with a piece on every square.
 #define FEN_LEN_MIN 8+7		// An empty board.

@@ -14,7 +14,7 @@ CXXFLAGS += -Wl,--subsystem=console
 LDFLAGS := -lgdi32
 
 deploy/$(NAME).exe : build/main.o | deploy
-build/main.o : main.cpp *.h lib/*.h app/*.h | build
+build/main.o : main.cpp lib/*.h app/*.h | build
 
 deploy : ; IF NOT EXIST $@ MKDIR $@
 build : ; IF NOT EXIST $@ MKDIR $@
@@ -23,7 +23,7 @@ build : ; IF NOT EXIST $@ MKDIR $@
 %.o : ; $(CXX) -o $@ -c $(filter %.cpp %.c, $^) $(CXXFLAGS)
 
 .PHONY : clean reset run test
-clean : ; IF EXIST build RMDIR /Q /S build && DEL *.ppm 2>NUL
+clean : ; IF EXIST build RMDIR /Q /S build && DEL *.ppm *.fot 2>NUL
 reset : | clean ; IF EXIST deploy RMDIR /Q /S deploy
 run : deploy/$(NAME).exe ; @$< $(TEST_1)
 

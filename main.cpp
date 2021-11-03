@@ -1,19 +1,22 @@
 #define WIN32_LEAN_AND_MEAN
+#define STRICT
 #include <windows.h>
 #include <stdio.h>
 #include <inttypes.h>
 
 #include "lib/lib.h"
-#include "lib/gdi.h"
 #include "lib/out.h"
+
+#include "lib/fen.h"
+#include "lib/grid_t.h"
+#include "lib/chessfont_t.h"
+
+#include "lib/gdi.h"
+#include "lib/bitmap.h"
 #include "lib/memory_dc_t.h"
+
 #include "app/args_t.h"
 #include "app/theme_t.h"
-
-#include "fen.h"
-#include "bitmap.h"
-#include "grid_t.h"
-#include "chessfont_t.h"
 
 // FIXME: Add a USAGE and HELP message.
 

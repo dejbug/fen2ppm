@@ -1,4 +1,5 @@
 #pragma once
+#include <windows.h>
 
 struct memory_dc_context_t
 {
