@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include "lib.h"
 // Needs: -lgdi32
 
 namespace lib {
@@ -47,6 +48,16 @@ bool font_exists(char const * name)
 
 	ReleaseDC(h, dc);
 	return fe.found;
+}
+
+void draw_char(HDC dc, int x, int y, char c, COLORREF col)
+{
+	// SelectObject(dc, GetStockObject(DC_BRUSH));
+	// SetBkMode(dc, TRANSPARENT);
+
+	char buf[2] {c, '\0'};
+	SetTextColor(dc, col);
+	TextOut(dc, x, y, buf, 1);
 }
 
 } // lib

@@ -7,13 +7,10 @@
 #define RAW_LEN 64			// Length of "unpacked" FEN (without the '\0').
 #define MAP_LEN 12			// Length of translation table (without the '\0').
 
-typedef enum { None='\0', Black='b', White='w' } Side;
+typedef enum { None='\0', Dark='d', Light='l' } Side;
 
 bool fen_unpack(char (&raw)[RAW_LEN+1], char (&col)[RAW_LEN+1], char const * fen)
 {
-	memset(col, Side::None, RAW_LEN);
-	col[RAW_LEN] = '\0';
-
 	// ASSUME: fen is a non-empty string.
 	if (!fen || !*fen) return false;
 
@@ -25,6 +22,9 @@ bool fen_unpack(char (&raw)[RAW_LEN+1], char (&col)[RAW_LEN+1], char const * fen
 
 	// ASSUME: fen has no leading whitespace.
 	if (isspace(fen[0])) return false;
+
+	memset(col, Side::None, RAW_LEN);
+	col[RAW_LEN] = '\0';
 
 	size_t raw_len = 0;
 	for (size_t k=0; k<FEN_LEN_MAX && *fen; ++k, ++fen)
@@ -50,14 +50,14 @@ bool fen_unpack(char (&raw)[RAW_LEN+1], char (&col)[RAW_LEN+1], char const * fen
 		else if (strchr("qkrbnp", *fen))
 		{
 			if (raw_len >= RAW_LEN) return false;
-			col[raw_len] = Side::Black;
+			col[raw_len] = Side::Dark;
 			raw[raw_len] = *fen;
 			++raw_len;
 		}
 		else if (strchr("QKRBNP", *fen))
 		{
 			if (raw_len >= RAW_LEN) return false;
-			col[raw_len] = Side::White;
+			col[raw_len] = Side::Light;
 			raw[raw_len] = *fen;
 			++raw_len;
 		}
@@ -68,7 +68,27 @@ bool fen_unpack(char (&raw)[RAW_LEN+1], char (&col)[RAW_LEN+1], char const * fen
 	return true;
 }
 
-char fen_translate(char c, char const * map)
+char fen_toggle(char c)
+{
+	switch (c)
+	{
+		case 'p': return 'P';
+		case 'P': return 'p';
+		case 'n': return 'N';
+		case 'N': return 'n';
+		case 'b': return 'B';
+		case 'B': return 'b';
+		case 'r': return 'R';
+		case 'R': return 'r';
+		case 'q': return 'Q';
+		case 'Q': return 'q';
+		case 'k': return 'K';
+		case 'K': return 'k';
+	}
+	return ' ';
+}
+
+char fen2font(char c, char const * map)
 {
 	assert(!(!map || !*map));
 	assert(strlen(map) >= MAP_LEN);
@@ -87,17 +107,71 @@ char fen_translate(char c, char const * map)
 		case 'Q': return map[9];
 		case 'k': return map[10];
 		case 'K': return map[11];
-		default: return ' ';
 	}
+	return ' ';
 }
 
-bool fen_translate(char (&raw)[RAW_LEN+1], char const * map)
+bool fen_translate(char (&fen)[RAW_LEN+1], char (&raw)[RAW_LEN+1], char const * map)
 {
 	if (!map || !*map) return false;
 	if (strlen(map) < MAP_LEN) return false;
 
 	for (size_t i=0; i<RAW_LEN; ++i)
-		raw[i] = fen_translate(raw[i], map);
+		fen[i] = fen2font(raw[i], map);
 
 	return true;
 }
+
+struct fen_t
+{
+	char raw[RAW_LEN+1] = {0};	// As parsed.
+	char fen[RAW_LEN+1] = {0};	// After mapping.
+	char col[RAW_LEN+1] = {0};
+	char const * map = nullptr;
+
+	bool parse(char const * text, char const * map)
+	{
+		raw[RAW_LEN] = '\0';
+		fen[RAW_LEN] = '\0';
+		col[RAW_LEN] = '\0';
+		this->map = map;
+
+		lib::log("fen raw: |%s|\n", text);
+		if (!text || !*text || !fen_unpack(raw, col, text))
+		{
+			lib::err("! Was unable to unpack FEN: \"%s\"\n", text);
+			return false;
+		}
+		lib::log("fen unp: |%s|\n", raw);
+		if (!map || !fen_translate(fen, raw, map))
+		{
+			lib::err("! Was unable to translate FEN \"%s\" with map: \"%s\"\n",
+				text, map);
+			return false;
+		}
+		lib::log("fen map: |%s|\n", fen);
+		return true;
+	}
+
+	Side get_side(size_t i) const
+	{
+		if (!isalpha(raw[i])) return Side::None;
+		return islower(raw[i]) ? Side::Dark : Side::Light;
+	}
+
+	char to_dark(size_t i) const
+	{
+		if (i >= RAW_LEN) return '\0';
+		if (col[i] == Side::None) return fen[i];
+		if (col[i] == Side::Dark) return fen[i];
+		return fen2font(fen_toggle(raw[i]), map);
+	}
+	
+	char to_light(size_t i) const
+	{
+		if (i >= RAW_LEN) return '\0';
+		if (col[i] == Side::None) return fen[i];
+		if (col[i] == Side::Light) return fen[i];
+		return fen2font(fen_toggle(raw[i]), map);
+	}
+};

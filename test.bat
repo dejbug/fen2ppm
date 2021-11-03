@@ -8,6 +8,7 @@ GOTO Usage
 make -C tests\app_theme_test %1
 make -C tests\lib_argument_parser_test %1
 make -C tests\lib_shlex_test %1
+make -C tests\lib_test %1
 goto :EOF
 
 :Usage

@@ -1,11 +1,6 @@
 #pragma once
 #include "lib.h" // log
 
-#define BLUE(c) ((unsigned char)((c) & 0xFF))
-#define GREEN(c) ((unsigned char)(((c) >> 8) & 0xff))
-#define RED(c) ((unsigned char)(((c) >> 16) & 0xff))
-#define ALPHA(c) ((unsigned char)(((c) >> 24) & 0xff))
-
 bool get_bitmap_info(HDC dc, HBITMAP bmp, BITMAPINFO & bi)
 {
 	BITMAPINFOHEADER & ih = bi.bmiHeader;
@@ -13,7 +8,6 @@ bool get_bitmap_info(HDC dc, HBITMAP bmp, BITMAPINFO & bi)
 	ih.biSize = sizeof(ih);
 	return GetDIBits(dc, bmp, 0, 0, 0, &bi, DIB_RGB_COLORS);
 }
-
 
 bool get_bitmap_data(HDC dc, HBITMAP bmp, BITMAPINFO & bi, char *& data)
 {
@@ -29,7 +23,6 @@ bool get_bitmap_data(HDC dc, HBITMAP bmp, BITMAPINFO & bi, char *& data)
 	if (!GetDIBits(dc, bmp, 0, ih.biHeight, data, &bi, DIB_RGB_COLORS)) return false;
 	return true;
 }
-
 
 size_t calc_bitmap_size(BITMAPINFOHEADER const & ih)
 {
@@ -51,13 +44,11 @@ size_t calc_bitmap_size(BITMAPINFOHEADER const & ih)
 	return 0;
 }
 
-
 size_t calc_bitmap_size_32(BITMAPINFOHEADER const & ih)
 {
 	if (ih.biBitCount != 32) return 0;
 	return calc_bitmap_size(ih);
 }
-
 
 bool dump_bitmap_data(HDC dc, HBITMAP bmp, FILE * file=stdout)
 {
@@ -85,7 +76,7 @@ bool dump_bitmap_data(HDC dc, HBITMAP bmp, FILE * file=stdout)
 	// for (size_t i=0; i<dwords_count; ++i)
 	// {
 	// 	DWORD const & c = dwords[i];
-	// 	printf("%d %d %d ", RED(c), GREEN(c), BLUE(c));
+	// 	printf("%d %d %d ", GetRValue(c), GetGValue(c), GetBValue(c));
 	// 	if (i > 0 && (i % 8) == 0) printf("\n");
 	// }
 	size_t index = 0;
@@ -96,7 +87,7 @@ bool dump_bitmap_data(HDC dc, HBITMAP bmp, FILE * file=stdout)
 			for (long i=0; i<ih.biWidth; ++i)
 			{
 				DWORD const & c = dwords[i + j*ih.biWidth];
-				fprintf(file, "%d %d %d ", RED(c), GREEN(c), BLUE(c));
+				fprintf(file, "%d %d %d ", COLORREF_RED(c), COLORREF_GREEN(c), COLORREF_BLUE(c));
 				if ((++index & 7) == 0) fprintf(file, "\n");
 			}
 		}
