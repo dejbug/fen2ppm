@@ -60,7 +60,13 @@ struct theme_t
 		}
 		return valid;
 	}
-	
+
+	void map(COLORREF (*f)(COLORREF))
+	{
+		for (int i=0; i<valid; ++i)
+			*colors[i] = f(*colors[i]);
+	}
+
 	void print() const
 	{
 		lib::err("THEME: ds=%08x, ls=%08x, dp=%08x, lp=%08x\n", ds, ls, dp, lp);

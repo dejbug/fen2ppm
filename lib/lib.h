@@ -42,4 +42,18 @@ bool find_text_in_file(FILE * file, char const * text)
 	return false;
 }
 
+#define BGR_RED(c)  ((c)&0xFF)
+#define BGR_GREEN() (((c)>>8)&0xFF)
+#define BGR_BLUE()  (((c)>>16)&0xFF)
+
+COLORREF bgr2rgb(COLORREF bgr)
+{
+	COLORREF rgb = bgr & 0xFF;
+	rgb <<= 8; bgr >>= 8;
+	rgb += bgr & 0xFF;
+	rgb <<= 8; bgr >>= 8;
+	rgb += bgr & 0xFF;
+	return rgb;
+}
+
 } // lib

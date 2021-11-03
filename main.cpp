@@ -47,6 +47,7 @@ int main(int argc, char ** argv)
 	theme_t theme;
 	int const count = theme.parse(args.colors);
 	lib::log("THEME: %d COLORS matched\n", count);
+	theme.map(lib::bgr2rgb);
 	theme.print();
 
 	lib::log("fen raw: |%s|\n", args.fen);
