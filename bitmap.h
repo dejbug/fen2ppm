@@ -64,11 +64,11 @@ bool dump_bitmap_data(HDC dc, HBITMAP bmp, FILE * file=stdout)
 	BITMAPINFO bi;
 	BITMAPINFOHEADER & ih = bi.bmiHeader;
 	if (!get_bitmap_info(dc, bmp, bi)) return false;
-	lib::log("%ldx%ld@%d (%ld)\n", ih.biWidth, ih.biHeight, ih.biBitCount, ih.biSizeImage);
+	lib::err("%ldx%ld@%d (%ld)\n", ih.biWidth, ih.biHeight, ih.biBitCount, ih.biSizeImage);
 
 	char * data = nullptr;
 	if (!get_bitmap_data(dc, bmp, bi, data)) return false;
-	lib::log("Bitmap Data PTR: %p\n", data);
+	lib::err("Bitmap Data PTR: %p\n", data);
 	if (!data) return false;
 	if (ih.biBitCount != 32 || ih.biSizeImage != calc_bitmap_size_32(ih))
 	{

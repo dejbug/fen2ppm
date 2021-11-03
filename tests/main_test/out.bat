@@ -1,0 +1,1 @@
+@make 1>out.txt 2>&1

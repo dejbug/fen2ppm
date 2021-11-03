@@ -30,6 +30,8 @@
 // chessfont_t.h
 // FIXME: Uniquely name FOTs and put them into the system's TEMP.
 
+#define MIN_SQUARE_SIZE 8
+
 int main(int argc, char ** argv)
 {
 	// lib::print_argv(argv);
@@ -61,6 +63,13 @@ int main(int argc, char ** argv)
 	}
 	lib::log("fen map: |%s|\n", raw);
 
+	if (args.square_size < MIN_SQUARE_SIZE)
+	{
+		lib::err("! The square size of %d is too small to be useful.\n",
+			args.square_size);
+		return EXIT_FAILURE;
+	}
+	
 	memory_dc_t mdc;
 	if (!mdc.create(args.image_size))
 	{

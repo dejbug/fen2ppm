@@ -63,6 +63,6 @@ struct theme_t
 	
 	void print() const
 	{
-		lib::log("THEME: ds=%08x, ls=%08x, dp=%08x, lp=%08x\n", ds, ls, dp, lp);
+		lib::err("THEME: ds=%08x, ls=%08x, dp=%08x, lp=%08x\n", ds, ls, dp, lp);
 	}
 };

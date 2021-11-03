@@ -30,13 +30,13 @@ struct args_t
 		{
 			if (parser.unknown)
 			{
-				lib::log("%s: error: unknown option '%c' (\\x%x)\n",
+				lib::err("%s: error: unknown option '%c' (\\x%x)\n",
 					argv[0], parser.unknown, parser.unknown);
 				return false;
 			}
 			else if (parser.missing)
 			{
-				lib::log("%s: error: missing argument for option '%c' (\\x%x)\n",
+				lib::err("%s: error: missing argument for option '%c' (\\x%x)\n",
 					argv[0], parser.missing, parser.missing);
 				return false;
 			}

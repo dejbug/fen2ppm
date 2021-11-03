@@ -1,4 +1,5 @@
 #pragma once
+#include <assert.h>
 #include "lib/lib.h"
 
 #define FEN_LEN_MAX 64+8	// A board with a piece on every square.
@@ -8,7 +9,7 @@
 
 typedef enum { None='\0', Black='b', White='w' } Side;
 
-bool fen_unpack(char raw[RAW_LEN+1], char col[RAW_LEN+1], char const * fen)
+bool fen_unpack(char (&raw)[RAW_LEN+1], char (&col)[RAW_LEN+1], char const * fen)
 {
 	memset(col, Side::None, RAW_LEN);
 	col[RAW_LEN] = '\0';
@@ -67,8 +68,11 @@ bool fen_unpack(char raw[RAW_LEN+1], char col[RAW_LEN+1], char const * fen)
 	return true;
 }
 
-char fen_translate(char c, char const map[MAP_LEN+1])
+char fen_translate(char c, char const * map)
 {
+	assert(!(!map || !*map));
+	assert(strlen(map) >= MAP_LEN);
+
 	switch (c)
 	{
 		case 'p': return map[0];
@@ -87,11 +91,13 @@ char fen_translate(char c, char const map[MAP_LEN+1])
 	}
 }
 
-bool fen_translate(char raw[RAW_LEN+1], char const map[MAP_LEN+1])
+bool fen_translate(char (&raw)[RAW_LEN+1], char const * map)
 {
+	if (!map || !*map) return false;
+	if (strlen(map) < MAP_LEN) return false;
+
 	for (size_t i=0; i<RAW_LEN; ++i)
-	{
 		raw[i] = fen_translate(raw[i], map);
-	}
+
 	return true;
 }

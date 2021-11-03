@@ -20,7 +20,7 @@ struct shlex_t
 		offsets.clear();
 	}
 
-	bool parse(LPCSTR s)
+	bool parse(LPCSTR)
 	{
 		return true;
 	}

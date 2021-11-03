@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <gtest/gtest.h>
-#include "../argument_parser_t.h"
 
-#include "../out.h" // log, print_argv
+#include <lib/out.h> // log, print_argv
+#include <lib/argument_parser_t.h>
 
 #define VERBOSE
 #define MAX_ARGV 8
@@ -29,7 +29,7 @@ size_t argv_from_args(char * argv[MAX_ARGV], char * args)
 	return argc;
 }
 
-int main(int _, char ** argv_)
+int main(int, char **)
 {
 #if 0
 	char args[] = "TEST.EXE\0-c\0-b\0-a\0\0";
@@ -55,9 +55,9 @@ TEST(SelfTest, ArgvFromArgs) {
 	int const argc = argv_from_args(argv, args);
 #ifdef VERBOSE
 	lib::log("%d %p\n", argc, argv);
-	for (size_t i=0; i<argc+1; ++i)
+	for (int i=0; i<argc+1; ++i)
 		lib::log("%d |%s|\n", i, argv[i]);
-	for (size_t i=0; i<MAX_ARGV; ++i)
+	for (int i=0; i<MAX_ARGV; ++i)
 		lib::log("%d |%p|\n", i, argv[i]);
 #endif
 	ASSERT_EQ(argc, 4);

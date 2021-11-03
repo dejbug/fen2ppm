@@ -3,11 +3,11 @@
 #include <shellapi.h>
 #include <assert.h>
 #include <gtest/gtest.h>
-#include "../theme_t.h"
 
-#include "../../lib/lib.h" // log
+#include <lib/lib.h> // log
+#include <app/theme_t.h>
 
-int main(int _, char ** argv_)
+int main(int, char **)
 {
 #if 0
 	char const * text = "123456/123/12";

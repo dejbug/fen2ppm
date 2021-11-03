@@ -63,14 +63,14 @@ struct argument_parser_t
 			if (opt == '?') {
 #endif
 #ifdef VERBOSE
-				lib::log("* unknown opt '%c' (\\x%x)\n", optopt, optopt);
+				lib::err("* unknown opt '%c' (\\x%x)\n", optopt, optopt);
 #endif
 				unknown = optopt;
 				return false;
 			}
 			else if (opt == ':') {
 #ifdef VERBOSE
-				lib::log("* missing arg for opt '%c' (\\x%x)\n", optopt, optopts);
+				lib::err("* missing arg for opt '%c' (\\x%x)\n", optopt, optopts);
 #endif
 				missing = optopt;
 				return false;
@@ -78,7 +78,7 @@ struct argument_parser_t
 			else {
 #ifdef VERBOSE
 				size_t const i = ptr - sig;
-				lib::log("* known opt %c at %d in '%s' (%s)\n", opt, i, sig, optarg);
+				lib::err("* known opt %c at %d in '%s' (%s)\n", opt, i, sig, optarg);
 				if (optarg) items[i].val = optarg;
 				else items[i].on = true;
 #else
@@ -143,13 +143,13 @@ struct argument_parser_t
 			if (sig[i] == ':') continue;
 			// else if (!items[i].val.empty())
 			else if (items[i].val)
-				// lib::log("%d : OPT %c = |%s|\n", i, sig[i], items[i].val.c_str());
-				lib::log("%2d : OPT %c = |%s|\n", i, sig[i], items[i].val);
+				// lib::err("%d : OPT %c = |%s|\n", i, sig[i], items[i].val.c_str());
+				lib::err("%2d : OPT %c = |%s|\n", i, sig[i], items[i].val);
 			else
-				lib::log("%2d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
+				lib::err("%2d : OPT %c is %s\n", i, sig[i], items[i].on ? "ON" : "OFF");
 		}
 		for (size_t i=0; i<argscount; ++i)
-			lib::log("%2d : ARG |%s|\n", i, argv[i+argsbegin]);
+			lib::err("%2d : ARG |%s|\n", i, argv[i+argsbegin]);
 #endif
 	}
 };

@@ -3,11 +3,11 @@
 #include <shellapi.h>
 #include <assert.h>
 #include <gtest/gtest.h>
-#include "../shlex_t.h"
 
-// #include "../out.h" // log
+// #include <lib/out.h> // log
+#include <lib/shlex_t.h>
 
-int main(int _, char ** argv_)
+int main(int, char **)
 {
 #if 0
 	LPCWSTR const wcl = GetCommandLineW();
