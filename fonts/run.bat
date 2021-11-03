@@ -22,7 +22,7 @@ ECHO FACE: Alpha, Berlin, Kingdom, Leipzig, Merida.
 GOTO :EOF
 
 :Run
-SET CMD=deploy\fen2ppm.exe -f %FONT% -t %MAP% -o %ARG_O% -s %ARG_S% -c %ARG_C% -g 0 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+SET CMD=deploy\fen2ppm.exe -f %FONT% -m %MAP% -o %ARG_O% -s %ARG_S% -c %ARG_C% -g 0 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 ECHO %CMD%
 %CMD%
 GOTO :EOF

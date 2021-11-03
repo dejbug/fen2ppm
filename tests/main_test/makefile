@@ -5,9 +5,9 @@ BINARY ?= $(ROOT)/deploy/fen2ppm.exe
 FONTS ?= $(ROOT)/fonts
 
 _FONT := -f $(FONTS)/Alpha.ttf
-_MAP := -t "opjhnbtrwqlk"
+_MAP := -m "opjhnbtrwqlk"
 
-# CMD := deploy\fen2ppm.exe -o "" -f "" -t "" -s 0 -g 0 -c ""
+# CMD := deploy\fen2ppm.exe -o "" -f "" -m "" -s 0 -g 0 -c ""
 
 RANGE := 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 
@@ -17,8 +17,8 @@ all : $(foreach i,$(RANGE),fen$(i).ppm)
 fen1.ppm : $(BINARY) ; -$< -o ""
 fen2.ppm : $(BINARY) ; -$< -o $@ -f ""
 fen3.ppm : $(BINARY) ; -$< -o $@ -f 0
-fen4.ppm : $(BINARY) ; -$< -o $@ $(_FONT) -t ""
-fen5.ppm : $(BINARY) ; -$< -o $@ $(_FONT) -t 0
+fen4.ppm : $(BINARY) ; -$< -o $@ $(_FONT) -m ""
+fen5.ppm : $(BINARY) ; -$< -o $@ $(_FONT) -m 0
 fen6.ppm : $(BINARY) ; -$< -o $@ $(_FONT) $(_MAP) -s ""
 fen7.ppm : $(BINARY) ; -$< -o $@ $(_FONT) $(_MAP) -s 0
 fen8.ppm : $(BINARY) ; -$< -o $@ $(_FONT) $(_MAP) -s 64
@@ -33,5 +33,5 @@ fen15.ppm : $(BINARY) ; -$< -o $@ $(_FONT) $(_MAP) -s 64 -g 0 -c 333,ff0033
 $(BINARY) : makefile ; $(MAKE) -C $(ROOT)
 
 .PHONY : clean run
-clean : ; DEL *.ppm out.txt 2>NUL
+clean : ; DEL *.ppm out.txt *.fot 2>NUL
 run : test.exe ; @.\$<

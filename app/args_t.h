@@ -25,7 +25,7 @@ struct args_t
 	{
 		ok = false;
 
-		lib::argument_parser_t parser("c:f:g:o:s:t:vh");
+		lib::argument_parser_t parser("c:f:g:m:o:s:vh");
 		if (!parser.parse(argc, argv))
 		{
 			if (parser.unknown)
@@ -57,7 +57,7 @@ struct args_t
 		if (parser.opt('g')) gap = atoi(parser.opt('g'));
 
 		map = DEFAULT_MAP;
-		if (parser.opt('t')) map = parser.opt('t');
+		if (parser.opt('m')) map = parser.opt('m');
 
 		out_path = DEFAULT_OUT_PATH;
 		if (parser.opt('o')) out_path = parser.opt('o');

@@ -1,9 +1,9 @@
 SHELL := cmd.exe
 NAME := fen2ppm
-TEST_1 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_2 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -s 16 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_3 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s 128 -x "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_4 := -f MERIFONTNEW.TTF -t "opmnvbtrwqlk" -o fen.ppm -s
+TEST_1 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -o fen.ppm -s 128 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_2 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -s 16 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_3 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -o fen.ppm -s 128 -x "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+TEST_4 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -o fen.ppm -s
 
 CXX := g++
 CXXFLAGS :=
