@@ -4,17 +4,19 @@
 #include "gdi.h" // font_exists
 
 #define FOT_PATH "FEN2PPM.TEMP.FOT"
+#define FOT_NAME "FEN2PPM.FOT"
 
 
 struct chessfont_t
 {
 	HFONT handle = nullptr;
-	char name[MAX_PATH+1];
-	char path[MAX_PATH+1];
+	char name[MAX_PATH+1] = {0};
+	char path[MAX_PATH+1] = {0};
 	bool from_file = false;
 	bool installed = false;
+	char * fot_path = nullptr;
 
-	~chessfont_t() { free(); uninstall(); }
+	~chessfont_t() { uninstall(); free(); }
 
 	// operator HFONT() const { return handle; }
 
@@ -121,27 +123,22 @@ struct chessfont_t
 
 	bool install(char const * path, bool notify=false)
 	{
-		free();
 		uninstall();
+		free();
 
 		set_path(path);
 		from_file = lib::file_exists(path);
 		if (from_file)
 		{
-			// FIXME: Deleting is necessary so we don't load an older font from
-			// a .FOT relic. But make sure whatever is at FOT_PATH is in a temporary
-			// folder. Also try to make the name unique to our application (e.g.
-			// "fen2ppm-<randomstring>.fot").
-			DeleteFile(FOT_PATH);
+			if (fot_path) delete[] fot_path;
+			fot_path = lib::make_temp_path(FOT_NAME);
 
-			if (!CreateScalableFontResource(1,FOT_PATH,path,0)) return false;
+			DeleteFile(fot_path);
+
+			if (!CreateScalableFontResource(1,fot_path,path,0)) return false;
 			if (0 == AddFontResource(path)) return false;
 
-			// This seems to be causing trouble. Perhaps we need to copy
-			// the font file into the windows\font folder first? We don't need this.
-			// if (notify) SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
-
-			if (!extract_name(FOT_PATH, name, sizeof(name))) return false;
+			if (!extract_name(fot_path, name, sizeof(name))) return false;
 		}
 		else
 		{
@@ -158,7 +155,7 @@ struct chessfont_t
 	{
 		if (!installed) return;
 		RemoveFontResource(path);
-		DeleteFile(FOT_PATH);
+		if (fot_path) { DeleteFile(fot_path); delete[] fot_path; fot_path = nullptr; }
 		set_path(NULL);
 		installed = false;
 		lib::log("* free: Chessfont (uninstall)\n");

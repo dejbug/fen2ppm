@@ -29,7 +29,6 @@
 // FIXME: Test calc_bitmap_size() or find a better reference on bitmaps.
 
 // chessfont_t.h
-// FIXME: Uniquely name FOTs and put them into the system's TEMP.
 
 #define MIN_SQUARE_SIZE 8
 

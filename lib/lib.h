@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "out.h"
+
 // lib::log and prosper.
 
 #define COLORREF_ALPHA(c) ((UCHAR)( ((DWORD)(c)>>24u) & 0xFFu ))
@@ -64,6 +66,38 @@ COLORREF linterpol(COLORREF a, COLORREF b, float f)
 		(COLORREF_GREEN(b)-COLORREF_GREEN(a))*f+COLORREF_GREEN(a),
 		(COLORREF_BLUE(b)-COLORREF_BLUE(a))*f+COLORREF_BLUE(a)
 	);
+}
+
+char * make_temp_path(char const * name)
+{
+	DWORD const temp_path_len = GetTempPath(0, nullptr);
+	if (!temp_path_len)
+	{
+		lib::err("! Was unable to determine TEMP path length.\n");
+		return nullptr;
+	}
+	DWORD const name_len = strlen(name);
+	DWORD const path_size = temp_path_len + name_len + 1;
+	char * path = new char[path_size];
+	if (!path)
+	{
+		lib::err("! Was unable to allocate memory for TEMP path.\n");
+		return nullptr;
+	}
+	DWORD const path_len = GetTempPath(path_size, path);
+	if (!path_len)
+	{
+		lib::err("! Was unable to determine TEMP path.\n");
+		return nullptr;
+	}
+	strncat(path, name, name_len);
+	// for (size_t i=0; i<path_size; ++i)
+		// lib::err("%02x ", path[i]);
+	// lib::err("\n");
+	// for (size_t i=0; i<path_size; ++i)
+		// lib::err("[%c]", path[i]);
+	// lib::err("\n");
+	return path;
 }
 
 } // lib
