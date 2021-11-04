@@ -1,0 +1,1 @@
+@deploy\fen2ppm.exe -s 64 -f "Chess Merida Arena" -o fen.ppm -c 00f.ff0.f00.fff && fen.ppm

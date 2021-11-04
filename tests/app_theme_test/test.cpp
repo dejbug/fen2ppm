@@ -27,73 +27,80 @@ namespace {
 TEST(ThemeTest, NullString) {
 char const * text = nullptr;
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 0);
-	ASSERT_EQ(theme.ds, 0);
+	ASSERT_EQ(count, 0u);
+	ASSERT_EQ(theme.has(0), false);
+	ASSERT_EQ(theme.get(0), 0u);
 }
 
 TEST(ThemeTest, EmptyString) {
 char const * text = "";
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 0);
-	ASSERT_EQ(theme.ds, 0);
+	ASSERT_EQ(count, 0u);
+	ASSERT_EQ(theme.has(0), false);
+	ASSERT_EQ(theme.get(0), 0u);
 }
 
 TEST(ThemeTest, Eol) {
 char const * text = "00DEAD";
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 1);
-	ASSERT_EQ(theme.ds, 0x00DEAD);
+	ASSERT_EQ(count, 1u);
+	ASSERT_EQ(theme.has(0), true);
+	ASSERT_EQ(theme.has(1), false);
+	ASSERT_EQ(theme.get(0), 0x00DEADu);
 }
 
 TEST(ThemeTest, StretchedColors) {
 char const * text = "#123.ACE-#DED:#A0E";
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 4);
-	ASSERT_EQ(theme.ds, 0x00112233);
-	ASSERT_EQ(theme.ls, 0x00AACCEE);
-	ASSERT_EQ(theme.dp, 0x00DDEEDD);
-	ASSERT_EQ(theme.lp, 0x00AA00EE);
+	ASSERT_EQ(count, 4u);
+	ASSERT_EQ(theme.has(4), false);
+	ASSERT_EQ(theme.get(0), 0x00112233u);
+	ASSERT_EQ(theme.get(1), 0x00AACCEEu);
+	ASSERT_EQ(theme.get(2), 0x00DDEEDDu);
+	ASSERT_EQ(theme.get(3), 0x00AA00EEu);
 }
 
 TEST(ThemeTest, IncompleteThird) {
 char const * text = "123456/123/12";
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 2);
-	ASSERT_EQ(theme.ds, 0x00123456);
-	ASSERT_EQ(theme.ls, 0x00112233);
-	ASSERT_EQ(theme.dp, 0x00000012);
+	ASSERT_EQ(count, 2u);
+	ASSERT_EQ(theme.get(0), 0x00123456u);
+	ASSERT_EQ(theme.get(1), 0x00112233u);
+	ASSERT_EQ(theme.get(2), 0x00000012u);
 }
 
 TEST(ThemeTest, MixedSeparators) {
 char const * text = "123ACE ACE,123A5C7E";
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 3);
-	ASSERT_EQ(theme.ds, 0x00123ACE);
-	ASSERT_EQ(theme.ls, 0x00AACCEE);
-	ASSERT_EQ(theme.dp, 0x123A5C7E);
+	ASSERT_EQ(count, 3u);
+	ASSERT_EQ(theme.has(3), false);
+	ASSERT_EQ(theme.get(0), 0x00123ACEu);
+	ASSERT_EQ(theme.get(1), 0x00AACCEEu);
+	ASSERT_EQ(theme.get(2), 0x123A5C7Eu);
 }
 
 TEST(ThemeTest, HashPrefixed) {
 char const * text = "#123ACE,#ACE #123A5C7E";
 	theme_t theme;
-	int const count = theme.parse(text);
+	size_t const count = theme.parse(text);
 	ASSERT_EQ(count, theme.valid);
-	ASSERT_EQ(count, 3);
-	ASSERT_EQ(theme.ds, 0x00123ACE);
-	ASSERT_EQ(theme.ls, 0x00AACCEE);
-	ASSERT_EQ(theme.dp, 0x123A5C7E);
+	ASSERT_EQ(count, 3u);
+	ASSERT_EQ(theme.has(3), false);
+	ASSERT_EQ(theme.get(0), 0x00123ACEu);
+	ASSERT_EQ(theme.get(1), 0x00AACCEEu);
+	ASSERT_EQ(theme.get(2), 0x123A5C7Eu);
 }
 
 }

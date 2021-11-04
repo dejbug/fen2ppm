@@ -1,0 +1,1 @@
+@cls && make && fonts\run Leipzig 32 && fen.ppm

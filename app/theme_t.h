@@ -3,10 +3,9 @@
 
 struct theme_t
 {
-	COLORREF ds = 0, ls = 0, dp = 0, lp = 0;
-	int valid = 0;
-	static int const colors_count = 4;
-	COLORREF * const colors[colors_count] = {&ds, &ls, &dp, &lp};
+	size_t valid = 0;
+	static size_t const count = 4;
+	COLORREF colors[count] = {0};
 
 	static int xtoi(char c)
 	{
@@ -22,7 +21,7 @@ struct theme_t
 
 		if (!text || !*text) return -1;
 
-		size_t count = 0;
+		size_t cc = 0;
 
 		for (; *text; ++text)
 		{
@@ -32,23 +31,23 @@ struct theme_t
 			else
 			{
 				col = (col << 4) + dec;
-				++count;
+				++cc;
 			}
 		}
-		if (count == 3 || count == 6 || count == 8)
-			return count;
-		return -count;
+		if (cc == 3 || cc == 6 || cc == 8)
+			return cc;
+		return -cc;
 	}
 
-	void stretch_color(COLORREF & col)
+	static COLORREF stretch_color(COLORREF col)
 	{
-		col = ((col&0xF00)<< 12) | ((col&0xF00)<< 8) | ((col&0x0F0)<<8) | ((col&0x0F0)<<4) | ((col&0x00F)<<4) | (col&0x00F);
+		return ((col&0xF00)<< 12) | ((col&0xF00)<< 8) | ((col&0x0F0)<<8) | ((col&0x0F0)<<4) | ((col&0x00F)<<4) | (col&0x00F);
 	}
 
 	void zero()
 	{
-		for (size_t i=0; i<colors_count; ++i)
-			*colors[i] = 0;
+		for (size_t i=0; i<count; ++i)
+			colors[i] = 0;
 	}
 
 	int parse(char const * text)
@@ -57,29 +56,46 @@ struct theme_t
 		if (!text || !*text) return 0;
 
 		// COLORREF * colors[] = {&ds, &ls, &dp, &lp};
-		// int const colors_count = sizeof(colors) / sizeof(*colors);
+		// int const count = sizeof(colors) / sizeof(*colors);
 
 		valid = 0;
-		for (; valid<colors_count; ++valid)
+		for (; valid<count; ++valid)
 		{
 			if (text[0] == '#') ++text;
-			int const count = match_color(text, *colors[valid]);
-			// lib::log("* MATCH%scol=%08X\n", count > 0 ? "ED: " : " FAILED: ", *colors[valid]);
+			int const count = match_color(text, colors[valid]);
+			// lib::log("* MATCH%scol=%08X\n", count > 0 ? "ED: " : " FAILED: ", colors[valid]);
 			if (count < 0) break;
 			text += count + 1;
-			if (count == 3) stretch_color(*colors[valid]);
+			if (count == 3) colors[valid] = stretch_color(colors[valid]);
 		}
 		return valid;
 	}
 
 	void map(COLORREF (*f)(COLORREF))
 	{
-		for (int i=0; i<valid; ++i)
-			*colors[i] = f(*colors[i]);
+		for (size_t i=0; i<valid; ++i)
+			colors[i] = f(colors[i]);
 	}
 
+	bool has(size_t i) const
+	{
+		return i < valid;
+	}
+
+	COLORREF get(size_t i) const
+	{
+		if (i >= count) return -1;
+		return colors[i];
+	}
+	
 	void print() const
 	{
-		lib::err("THEME: ds=%08x, ls=%08x, dp=%08x, lp=%08x\n", ds, ls, dp, lp);
+		lib::err("THEME:");
+		for (size_t i=0; i<count; ++i)
+		{
+			if (i < valid) lib::err(" %06x", colors[i]);
+			else lib::err(" ------");
+		}
+		lib::err("\n");
 	}
 };

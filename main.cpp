@@ -20,13 +20,12 @@
 
 // FIXME: Add a USAGE and HELP message.
 
-// theme_t.h
-// FIXME: Black is interpreted as a non-color instead of checking theme.valid.
-// FIXME: Change the struct's color-indexability into something enum based ?
-// FIXME: Move the static methods into lib ?
+// FIXME:bitmap_t.h: Test calc_bitmap_size() or find a better reference on bitmaps.
 
-// bitmap_t.h
-// FIXME: Test calc_bitmap_size() or find a better reference on bitmaps.
+// TODO: Add differently sized boards (1x1 and up).
+// TODO: Add ROPs.
+
+// TODO:theme_t: Move the static methods into lib ?
 
 #define MIN_SQUARE_SIZE 8
 
@@ -91,10 +90,10 @@ int main(int argc, char ** argv)
 	SelectObject(dc, GetStockObject(DC_BRUSH));
 	SetBkMode(dc, TRANSPARENT);
 
-	COLORREF const dk = theme.ds ? theme.ds : RGB(209,209,209);
-	COLORREF const lt = theme.ls ? theme.ls : RGB(253,183,183);
-	COLORREF const dp = theme.dp ? theme.dp : RGB(150,120,140);
-	COLORREF const lp = theme.lp ? theme.lp : RGB(220,200,200);
+	COLORREF const dk = theme.has(0) ? theme.get(0) : RGB(209,209,209);
+	COLORREF const lt = theme.has(1) ? theme.get(1) : RGB(253,183,183);
+	COLORREF const dp = theme.has(2) ? theme.get(2) : RGB(150,120,140);
+	COLORREF const lp = theme.has(3) ? theme.get(3) : RGB(220,200,200);
 	COLORREF const black = RGB(0, 0, 0);
 	// COLORREF const white = RGB(255, 255, 255);
 	COLORREF const lp_darker = lib::linterpol(lp, black, 0.3); // RGB(0, 0, 0);
