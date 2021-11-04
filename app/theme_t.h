@@ -40,8 +40,20 @@ struct theme_t
 		return -count;
 	}
 
+	void stretch_color(COLORREF & col)
+	{
+		col = ((col&0xF00)<< 12) | ((col&0xF00)<< 8) | ((col&0x0F0)<<8) | ((col&0x0F0)<<4) | ((col&0x00F)<<4) | (col&0x00F);
+	}
+
+	void zero()
+	{
+		for (size_t i=0; i<colors_count; ++i)
+			*colors[i] = 0;
+	}
+
 	int parse(char const * text)
 	{
+		zero();
 		if (!text || !*text) return 0;
 
 		// COLORREF * colors[] = {&ds, &ls, &dp, &lp};
@@ -53,10 +65,9 @@ struct theme_t
 			if (text[0] == '#') ++text;
 			int const count = match_color(text, *colors[valid]);
 			// lib::log("* MATCH%scol=%08X\n", count > 0 ? "ED: " : " FAILED: ", *colors[valid]);
-			if (count > 0)
-				text += count + 1;
-			else
-				break;
+			if (count < 0) break;
+			text += count + 1;
+			if (count == 3) stretch_color(*colors[valid]);
 		}
 		return valid;
 	}

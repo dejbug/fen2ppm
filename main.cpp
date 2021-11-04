@@ -21,8 +21,6 @@
 // FIXME: Add a USAGE and HELP message.
 
 // theme_t.h
-// FIXME: COLORREF is in 0x00bbggrr format but user will want 0x00rrggbb.
-// FIXME: The 3-digit colors need to be stretched.
 // FIXME: Black is interpreted as a non-color instead of checking theme.valid.
 // FIXME: Change the struct's color-indexability into something enum based ?
 // FIXME: Move the static methods into lib ?
@@ -101,7 +99,7 @@ int main(int argc, char ** argv)
 	COLORREF const dp = theme.dp ? theme.dp : RGB(150,120,140);
 	COLORREF const lp = theme.lp ? theme.lp : RGB(220,200,200);
 	COLORREF const black = RGB(0, 0, 0);
-	COLORREF const white = RGB(255, 255, 255);
+	// COLORREF const white = RGB(255, 255, 255);
 	COLORREF const lp_darker = lib::linterpol(lp, black, 0.3); // RGB(0, 0, 0);
 	COLORREF const dp_darker = lib::linterpol(dp, black, 0.3); // RGB(255, 255, 255);
 
