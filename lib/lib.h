@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm> // max
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -70,6 +71,8 @@ COLORREF linterpol(COLORREF a, COLORREF b, float f)
 
 char * make_temp_path(char const * name)
 {
+	// FIXME: Maybe use tmpnam() for the name?
+	// FIXME: Maybe just use GetTempFileName()?
 	DWORD const temp_path_len = GetTempPath(0, nullptr);
 	if (!temp_path_len)
 	{
@@ -97,6 +100,19 @@ char * make_temp_path(char const * name)
 	// for (size_t i=0; i<path_size; ++i)
 		// lib::err("[%c]", path[i]);
 	// lib::err("\n");
+	return path;
+}
+
+char const * notdir(char const * path)
+{
+	if (!path || !*path) return path;
+	// FIXME: I remember using GetFullPathName() in the past, but there were
+	// 	some major quirks to get rid of for edge-cases hence I'm reluctant.
+	char const * const bsl = strrchr(path, '\\');
+	char const * const sl = strrchr(path, '/');
+	if (bsl && sl) return std::max(bsl, sl)+1;
+	if (bsl) return bsl+1;
+	if (sl) return sl+1;
 	return path;
 }
 

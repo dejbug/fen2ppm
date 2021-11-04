@@ -145,7 +145,7 @@ struct chessfont_t
 			if (!lib::font_exists(path)) return false;
 
 			set_path(nullptr);
-			set_name(path); // TODO: set_name(notdir(path));
+			set_name(lib::notdir(path));
 
 		}
 		return installed = true;

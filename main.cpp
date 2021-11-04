@@ -28,8 +28,6 @@
 // bitmap_t.h
 // FIXME: Test calc_bitmap_size() or find a better reference on bitmaps.
 
-// chessfont_t.h
-
 #define MIN_SQUARE_SIZE 8
 
 int main(int argc, char ** argv)
