@@ -15,7 +15,6 @@ The full command line is this: ```fen2ppm.exe -o OUTPATH -s SQUARE_SIZE -g GAP -
 FONT_MAPPING is e.g. `"ABCDEFGHIJKL"`. This is a twelve-letter string, each letter standing for one chess piece. It is necessary to give such a string because every font might have pieces' glyphs assigned to an arbitrary set of letters. How to read this string is using the following key: `"pPnNbBrRqQkK"`, each letter standing for a piece. So with the former mapping given on the command line, wherever a 'p' occurs in the FEN it will be translated to an 'A', whenever a 'P', it will become a 'B', and so on.
 
 COLORS is e.g. `eee/fee/0ef/f00`, which would draw light grey and rose squares and light blue and red pieces. The format is DS/LS/DP/LP (D=dark, L=light, S=square, P=piece). You can give it three-digit, six-digit, or eight-digit hex numbers (with or without preceding '#'). The three- and six-digit hexes are known to you as HTML colors; (the eight-digit form includes an alpha channel, which is currently ignored).
-```
 
 A sample image.
 
