@@ -7,13 +7,22 @@ namespace lib {
 
 typedef enum {MAX=0, AVG} CenteringMode;
 
-bool calc_text_centering_margins(HDC dc, int cx, int cy, SIZE & m, int mode=CenteringMode::MAX)
+bool calc_text_centering_margins(HDC dc, int edge, SIZE & m, int mode=CenteringMode::MAX)
 {
 	TEXTMETRIC tm;
 	if (!GetTextMetrics(dc, &tm)) return false;
 	LONG const width = mode == AVG ? tm.tmAveCharWidth : tm.tmMaxCharWidth;
-	m.cx = ((cx - width) >> 1);
-	m.cy = ((cy - tm.tmHeight) >> 1);
+	m.cx = ((edge - width) >> 1);
+	m.cy = ((edge - tm.tmHeight) >> 1);
+	return true;
+}
+
+bool calc_text_centering_margins(HDC dc, int edge, SIZE & m, char const * text, size_t len)
+{
+	SIZE s;
+	GetTextExtentPoint32(dc, text, len, &s);
+	m.cx = ((edge - s.cx) >> 1);
+	m.cy = ((edge - s.cy) >> 1);
 	return true;
 }
 
@@ -44,7 +53,7 @@ bool font_exists(char const * name)
 	strncpy(fe.name, name, MAX_PATH);
 
 	EnumFontFamilies(dc, NULL, (FONTENUMPROCA)font_exists_callback, (LPARAM)&fe);
-	// printf("FONT |%s| was %s.\n", name, fe.found ? "found" : "NOT found");
+	printf("FONT %s: |%s|.\n", fe.found ? "found" : "NOT found", name);
 
 	ReleaseDC(h, dc);
 	return fe.found;

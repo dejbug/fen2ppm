@@ -3,8 +3,8 @@
 
 struct theme_t
 {
+	static size_t const count = 5;
 	size_t valid = 0;
-	static size_t const count = 4;
 	COLORREF colors[count] = {0};
 
 	static int xtoi(char c)
@@ -41,7 +41,8 @@ struct theme_t
 
 	static COLORREF stretch_color(COLORREF col)
 	{
-		return ((col&0xF00)<< 12) | ((col&0xF00)<< 8) | ((col&0x0F0)<<8) | ((col&0x0F0)<<4) | ((col&0x00F)<<4) | (col&0x00F);
+		return ((col&0xF00)<< 12) | ((col&0xF00)<< 8) | ((col&0x0F0)<<8) |
+			((col&0x0F0)<<4) | ((col&0x00F)<<4) | (col&0x00F);
 	}
 
 	void zero()
@@ -63,7 +64,8 @@ struct theme_t
 		{
 			if (text[0] == '#') ++text;
 			int const count = match_color(text, colors[valid]);
-			// lib::log("* MATCH%scol=%08X\n", count > 0 ? "ED: " : " FAILED: ", colors[valid]);
+			// lib::log("* MATCH%scol=%08X\n", count > 0 ? "ED: " : " FAILED: ",
+				// colors[valid]);
 			if (count < 0) break;
 			text += count + 1;
 			if (count == 3) colors[valid] = stretch_color(colors[valid]);
@@ -82,12 +84,12 @@ struct theme_t
 		return i < valid;
 	}
 
-	COLORREF get(size_t i) const
+	COLORREF get(size_t i, COLORREF def=-1) const
 	{
-		if (i >= count) return -1;
+		if (i >= valid) return def;
 		return colors[i];
 	}
-	
+
 	void print() const
 	{
 		lib::err("THEME:");

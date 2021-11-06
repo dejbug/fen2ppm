@@ -20,6 +20,62 @@ struct chessfont_t
 
 	// operator HFONT() const { return handle; }
 
+	bool create_from_file_or_name(char const * path_or_name, int size)
+	{
+		if (!install(path_or_name))
+		{
+			lib::err("! \"%s\" is neither a font path nor font name.\n", path_or_name);
+			return false;
+		}
+		if (path) lib::log("Chess font path is |%s|.\n", path);
+		if (name) lib::log("Chess font facename is |%s|.\n", name);
+		if (!create(size))
+		{
+			lib::err("! Was unable to instantiate font \"%s\".\n", name);
+			return false;
+		}
+		lib::log("Chess font handle is %p\n", (void *)handle);
+		return true;
+	}
+
+	bool create_from_resource(char const * res, char const * name, int size)
+	{
+		HINSTANCE const instance = GetModuleHandle(NULL);
+		// HRSRC const res_find = FindResource(instance, "magnfont_ttf", "4711");
+		// HRSRC const res_find = FindResource(instance, "minimal.ttf", "4711");
+		HRSRC const res_find = FindResource(instance, res, MAKEINTRESOURCE(4711));
+		if (!res_find)
+		{
+			lib::err("! Was unable to find internal chessfont.\n");
+			return false;
+		}
+		DWORD const res_size = SizeofResource(instance, res_find);
+		lib::log("res_size: %d\n", res_size);
+		HGLOBAL const res_load = LoadResource(instance, res_find);
+		if (!res_load)
+		{
+			lib::err("! Was unable to load internal chessfont resource.\n");
+			return false;
+		}
+		LPVOID res_lock = LockResource(res_load);
+		if (!res_lock)
+		{
+			lib::err("! Was unable to lock internal chessfont resource.\n");
+			return false;
+		}
+		DWORD res_loaded_count = 0;
+		HANDLE const res_add = AddFontMemResourceEx(res_lock, res_size, 0, &res_loaded_count);
+		if (!res_add)
+		{
+			lib::err("! Was unable to add internal chessfont.\n");
+			return false;
+		}
+		lib::log("res_loaded_count: %d\n", res_loaded_count);
+		lib::log("res_add: %p\n", res_add);
+
+		return create(name, size);
+	}
+
 	void set_name(char const * text)
 	{
 		if (!text || !*text) name[0] = '\0';
@@ -123,6 +179,8 @@ struct chessfont_t
 
 	bool install(char const * path, bool notify=false)
 	{
+		if (!path || !*path) return false;
+
 		uninstall();
 		free();
 

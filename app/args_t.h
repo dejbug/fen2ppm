@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "../lib/argument_parser_t.h"
 
-#define DEFAULT_COLORS "ff0000/0000ff/ffaaaa/aaaaff"
+#define DEFAULT_COLORS NULL
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define DEFAULT_FONT "MERIFONTNEW.TTF"
+#define DEFAULT_FONT nullptr
 #define DEFAULT_GAP 0
-#define DEFAULT_MAP "opmnvbtrwqlk"
+#define DEFAULT_MAP "aAbBcCdDeEfF" // "pPnNbBrRqQkK"
 #define DEFAULT_OUT_PATH NULL
 #define DEFAULT_SQUARE_SIZE 64
+
+#define MIN_SQUARE_SIZE 8
 
 struct args_t
 {
@@ -18,7 +20,6 @@ struct args_t
 	char const * out_path = nullptr;
 	int gap = 0;
 	int square_size = 0;
-	int image_size = 0;
 	bool ok = false;
 
 	bool parse(int argc, char ** argv)
@@ -66,14 +67,20 @@ struct args_t
 		if (parser.opt('s'))
 			square_size = atoi(parser.opt('s'));
 
-		image_size = (square_size + gap) << 3;
+		if (gap < 0) gap = -gap;
+
+		if (square_size < MIN_SQUARE_SIZE)
+		{
+			lib::err("! The square size of %d is too small to be useful.\n", square_size);
+			return false;
+		}
 
 		return true;
 	}
 
 	void print() const
 	{
-		fprintf(stderr, "args_t{colors=\"%s\", fen=\"%s\", font=\"%s\", gap=%d, map=\"%s\", out_path=\"%s\", square_size=%d, image_size=%d}\n", colors, fen, font, gap, map, out_path, square_size, image_size);
+		fprintf(stderr, "args_t{colors=\"%s\", fen=\"%s\", font=\"%s\", gap=%d, map=\"%s\", out_path=\"%s\", square_size=%d}\n", colors, fen, font, gap, map, out_path, square_size);
 	}
 
 };

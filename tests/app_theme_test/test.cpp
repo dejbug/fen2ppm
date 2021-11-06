@@ -31,7 +31,7 @@ char const * text = nullptr;
 	ASSERT_EQ(count, theme.valid);
 	ASSERT_EQ(count, 0u);
 	ASSERT_EQ(theme.has(0), false);
-	ASSERT_EQ(theme.get(0), 0u);
+	ASSERT_EQ(theme.get(0), -1u);
 }
 
 TEST(ThemeTest, EmptyString) {
@@ -41,7 +41,7 @@ char const * text = "";
 	ASSERT_EQ(count, theme.valid);
 	ASSERT_EQ(count, 0u);
 	ASSERT_EQ(theme.has(0), false);
-	ASSERT_EQ(theme.get(0), 0u);
+	ASSERT_EQ(theme.get(0), -1u);
 }
 
 TEST(ThemeTest, Eol) {
@@ -76,7 +76,7 @@ char const * text = "123456/123/12";
 	ASSERT_EQ(count, 2u);
 	ASSERT_EQ(theme.get(0), 0x00123456u);
 	ASSERT_EQ(theme.get(1), 0x00112233u);
-	ASSERT_EQ(theme.get(2), 0x00000012u);
+	ASSERT_EQ(theme.get(2), -1u);
 }
 
 TEST(ThemeTest, MixedSeparators) {

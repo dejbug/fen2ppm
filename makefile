@@ -1,9 +1,9 @@
 SHELL := cmd.exe
+RC := windres
+
+TEST_1 := -o fen.ppm -s 64 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 NAME := fen2ppm
-TEST_1 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -o fen.ppm -s 128 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_2 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -s 16 -c ff0000/0000ff/ffaaaa/aaaaff "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_3 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -o fen.ppm -s 128 -x "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-TEST_4 := -f MERIFONTNEW.TTF -m "opmnvbtrwqlk" -o fen.ppm -s
 
 CXX := g++
 CXXFLAGS :=
@@ -13,14 +13,16 @@ CXXFLAGS += -Wl,--subsystem=console
 
 LDFLAGS := -lgdi32
 
-deploy/$(NAME).exe : build/main.o | deploy
+deploy/$(NAME).exe : build/main.o build/resource.res.o | deploy
 build/main.o : main.cpp lib/*.h app/*.h | build
+build/resource.res.o : res/resource.rc res/*.ttf
 
 deploy : ; IF NOT EXIST $@ MKDIR $@
 build : ; IF NOT EXIST $@ MKDIR $@
 
-%.exe : ; $(CXX) -o $@ $(filter %.o %.a %.dll, $^) $(CXXFLAGS) $(LDFLAGS)
+%.exe : ; $(CXX) -o $@ $(filter %.o %.a %.dll %res, $^) $(CXXFLAGS) $(LDFLAGS)
 %.o : ; $(CXX) -o $@ -c $(filter %.cpp %.c, $^) $(CXXFLAGS)
+%.res.o : ; $(RC) $< $@
 
 .PHONY : clean reset run test
 clean : ; IF EXIST build RMDIR /Q /S build && DEL *.ppm *.fot 2>NUL

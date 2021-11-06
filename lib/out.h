@@ -1,4 +1,5 @@
 #pragma once
+#include <windows.h>
 #include <stdarg.h>
 
 namespace lib {
@@ -90,6 +91,21 @@ template<> void print_argv<>(wchar_t ** argv)
 	if (argv)
 		for (size_t i=0; argv[i]; ++i)
 			lib::log<>(L"%3d %p |%S|\n", i, argv[i], argv[i]);
+}
+
+void err()
+{
+	lib::err("\n");
+}
+
+void err(RECT const & r)
+{
+	lib::err("RECT{left=%d, top=%d, right=%d, bottom=%d}", r.left, r.top, r.right, r.bottom);
+}
+
+void err(SIZE const & s)
+{
+	lib::err("SIZE{cx=%d, cy=%d}", s.cx, s.cy);
 }
 
 } // lib

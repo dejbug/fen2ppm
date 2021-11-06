@@ -6,6 +6,7 @@
 #define FEN_LEN_MIN 8+7		// An empty board.
 #define RAW_LEN 64			// Length of "unpacked" FEN (without the '\0').
 #define MAP_LEN 12			// Length of translation table (without the '\0').
+#define MAP_LEN_2 26		// Length of extended translation table (without the '\0').
 
 typedef enum { None='\0', Dark='d', Light='l' } Side;
 
@@ -111,6 +112,33 @@ char fen2font(char c, char const * map)
 	return ' ';
 }
 
+char fen2font(char c, char const * map, int col, int row)
+{
+	assert(!(!map || !*map));
+	assert(strlen(map) >= MAP_LEN_2);
+
+	bool const is_light_square = ((row + col) % 2 == 0);
+	int const i = is_light_square ? 0 : 1;
+
+	switch (c)
+	{
+		case 'P': return map[2*0+i];
+		case 'p': return map[2*1+i];
+		case 'N': return map[2*2+i];
+		case 'n': return map[2*3+i];
+		case 'B': return map[2*4+i];
+		case 'b': return map[2*5+i];
+		case 'R': return map[2*6+i];
+		case 'r': return map[2*7+i];
+		case 'Q': return map[2*8+i];
+		case 'q': return map[2*9+i];
+		case 'K': return map[2*10+i];
+		case 'k': return map[2*11+i];
+		default : return map[2*12+i];
+	}
+	return 0;
+}
+
 bool fen_translate(char (&fen)[RAW_LEN+1], char (&raw)[RAW_LEN+1], char const * map)
 {
 	if (!map || !*map) return false;
@@ -166,7 +194,7 @@ struct fen_t
 		if (col[i] == Side::Dark) return fen[i];
 		return fen2font(fen_toggle(raw[i]), map);
 	}
-	
+
 	char to_light(size_t i) const
 	{
 		if (i >= RAW_LEN) return '\0';
