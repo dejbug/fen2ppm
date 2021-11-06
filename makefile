@@ -15,14 +15,14 @@ LDFLAGS := -lgdi32
 
 deploy/$(NAME).exe : build/main.o build/resource.res.o | deploy
 build/main.o : main.cpp lib/*.h app/*.h | build
-build/resource.res.o : res/resource.rc res/*.ttf ; $(RC) $< $@
+build/resource.res.o : res/resource.rc res/*.ttf
 
 deploy : ; IF NOT EXIST $@ MKDIR $@
 build : ; IF NOT EXIST $@ MKDIR $@
 
 %.exe : ; $(CXX) -o $@ $(filter %.o %.a %.dll %res, $^) $(CXXFLAGS) $(LDFLAGS)
 %.o : ; $(CXX) -o $@ -c $(filter %.cpp %.c, $^) $(CXXFLAGS)
-# %.res.o : ; $(RC) $< $@
+%.res.o : ; $(RC) $< $@
 
 .PHONY : clean reset run test
 clean : ; IF EXIST build RMDIR /Q /S build && DEL *.ppm *.fot 2>NUL
