@@ -1,3 +1,6 @@
+/.ideas/
+/build/
+/deploy/
 *.o
 *.exe
 *.dll
@@ -6,5 +9,4 @@
 *.png
 *.ttf
 *.fot
-/.ideas/
 *.patch

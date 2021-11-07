@@ -6,7 +6,7 @@ SET FONT=%~dp0
 
 SET MAP="opmnvbtrwqlk"
 SET ARG_S=128
-SET ARG_C=e8fdb7/e3e3e3/5ba2e0/ed60ac
+SET ARG_C=e8fdb7/e3e3e3/5ba2e0/ed60ac/000/000
 SET ARG_O=fen.ppm
 
 IF "%1"=="" (GOTO Usage) ELSE (SET JUMP=%1)

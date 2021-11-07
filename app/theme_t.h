@@ -3,7 +3,7 @@
 
 struct theme_t
 {
-	static size_t const count = 5;
+	static size_t const count = 6;
 	size_t valid = 0;
 	COLORREF colors[count] = {0};
 

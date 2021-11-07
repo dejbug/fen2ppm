@@ -46,7 +46,15 @@ struct memory_dc_t
 		if (!bmp) return false;
 		lib::log("Memory HBITMAP: %p\n", (void *)bmp);
 		SelectObject(dc, bmp);
-		return true;
+		return test();
+	}
+
+	bool test() const
+	{
+		COLORREF const a = GetPixel(dc, 0, 0);
+		SetPixel(dc, 0, 0, a+1);
+		COLORREF const b = GetPixel(dc, 0, 0);
+		return a != b;
 	}
 
 	void free()

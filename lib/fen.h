@@ -86,7 +86,7 @@ char fen_toggle(char c)
 		case 'k': return 'K';
 		case 'K': return 'k';
 	}
-	return ' ';
+	return c;
 }
 
 char fen2font(char c, char const * map)
@@ -109,7 +109,7 @@ char fen2font(char c, char const * map)
 		case 'k': return map[10];
 		case 'K': return map[11];
 	}
-	return ' ';
+	return '\0';
 }
 
 char fen2font(char c, char const * map, int col, int row)
@@ -136,18 +136,7 @@ char fen2font(char c, char const * map, int col, int row)
 		case 'k': return map[2*11+i];
 		default : return map[2*12+i];
 	}
-	return 0;
-}
-
-bool fen_translate(char (&fen)[RAW_LEN+1], char (&raw)[RAW_LEN+1], char const * map)
-{
-	if (!map || !*map) return false;
-	if (strlen(map) < MAP_LEN) return false;
-
-	for (size_t i=0; i<RAW_LEN; ++i)
-		fen[i] = fen2font(raw[i], map);
-
-	return true;
+	return '\0';
 }
 
 struct fen_t
@@ -157,12 +146,11 @@ struct fen_t
 	char col[RAW_LEN+1] = {0};
 	char const * map = nullptr;
 
-	bool parse(char const * text, char const * map)
+	bool parse(char const * text)
 	{
 		raw[RAW_LEN] = '\0';
 		fen[RAW_LEN] = '\0';
 		col[RAW_LEN] = '\0';
-		this->map = map;
 
 		lib::log("fen raw: |%s|\n", text);
 		if (!text || !*text || !fen_unpack(raw, col, text))
@@ -171,13 +159,6 @@ struct fen_t
 			return false;
 		}
 		lib::log("fen unp: |%s|\n", raw);
-		if (!map || !fen_translate(fen, raw, map))
-		{
-			lib::err("! Was unable to translate FEN \"%s\" with map: \"%s\"\n",
-				text, map);
-			return false;
-		}
-		lib::log("fen map: |%s|\n", fen);
 		return true;
 	}
 
@@ -187,19 +168,28 @@ struct fen_t
 		return islower(raw[i]) ? Side::Dark : Side::Light;
 	}
 
-	char to_dark(size_t i) const
+	char get(size_t i) const
 	{
 		if (i >= RAW_LEN) return '\0';
-		if (col[i] == Side::None) return fen[i];
-		if (col[i] == Side::Dark) return fen[i];
-		return fen2font(fen_toggle(raw[i]), map);
+		return raw[i];
 	}
 
-	char to_light(size_t i) const
+	char get(size_t i, char const * map) const
 	{
 		if (i >= RAW_LEN) return '\0';
-		if (col[i] == Side::None) return fen[i];
-		if (col[i] == Side::Light) return fen[i];
+		return fen2font(raw[i], map);
+	}
+
+	char get(size_t i, char const * map, int col, int row) const
+	{
+		if (i >= RAW_LEN) return '\0';
+		return fen2font(raw[i], map, col, row);
+	}
+
+	char get_inv(size_t i, char const * map) const
+	{
+		if (i >= RAW_LEN) return '\0';
+		if (col[i] == Side::None) return get(i, map);
 		return fen2font(fen_toggle(raw[i]), map);
 	}
 };

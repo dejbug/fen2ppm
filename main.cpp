@@ -27,28 +27,27 @@
 
 // TODO:theme_t: Move the static methods into lib ?
 
-#define FONT_INTERNAL_NAME "Leipzig"
-#define FONT_INTERNAL_PATH "Leipzig.ttf"
-
-char const * const map_internal_12 = "CAGEKIOMSQWU";
-char const * const map_internal_26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-void draw_board_themed(HDC dc, fen_t & fen, chessfont_t & font, theme_t & theme, grid_t & grid, float border_factor=0.3)
+void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid, float border_factor=0.3)
 {
-	SelectObject(dc, font.handle);
+	lib::log("mode: THEMED\n");
+
+	SelectObject(dc, font);
 	SetBkMode(dc, TRANSPARENT);
 	SelectObject(dc, GetStockObject(NULL_PEN));
 	SelectObject(dc, GetStockObject(DC_BRUSH));
 
-	COLORREF const dk = theme.get(0, RGB(209,209,209));
-	COLORREF const lt = theme.get(1, RGB(253,183,183));
-	COLORREF const dp = theme.get(2, RGB(150,120,140));
-	COLORREF const lp = theme.get(3, RGB(220,200,200));
-	COLORREF const background = theme.get(4, RGB(255,255,255));
+	COLORREF const background = RGB(255,255,255);
+	// COLORREF const background = theme.get(0, RGB(255,255,255));
+	COLORREF const ds = theme.get(0, RGB(209,209,209));	// dark square
+	COLORREF const ls = theme.get(1, RGB(253,183,183));	// light square
+	COLORREF const dp = theme.get(2, RGB(150,120,140));	// dark piece
+	COLORREF const lp = theme.get(3, RGB(220,200,200));	// light piece
 	COLORREF const black = RGB(0, 0, 0);
-	// COLORREF const white = RGB(255, 255, 255);
+	COLORREF const white = RGB(255, 255, 255);
+	COLORREF const dp_lighter = lib::linterpol(dp, white, border_factor);
 	COLORREF const lp_darker = lib::linterpol(lp, black, border_factor);
-	COLORREF const dp_darker = lib::linterpol(dp, black, border_factor);
+	COLORREF const db = theme.get(4, dp_lighter);	// dark (piece) border
+	COLORREF const lb = theme.get(5, lp_darker);	// light (piece) border
 
 	SIZE m = {0, 0};
 	lib::calc_text_centering_margins(dc, grid.edge, m, lib::CenteringMode::MAX);
@@ -59,35 +58,37 @@ void draw_board_themed(HDC dc, fen_t & fen, chessfont_t & font, theme_t & theme,
 	SetDCBrushColor(dc, background);
 	Rectangle(dc, r.left, r.top, r.right, r.bottom);
 
-	size_t fen_i=0;
+	size_t i = 0;
 	for (size_t row=0; row<8; ++row)
 		for (size_t col=0; col<8; ++col)
 		{
 			grid.get_square_rect(r, col, row);
-			SetDCBrushColor(dc, ((row + col) % 2 == 0) ? lt : dk);
+			SetDCBrushColor(dc, ((row + col) % 2 == 0) ? ls : ds);
 			Rectangle(dc, r.left, r.top, r.right + 1, r.bottom + 1);
 
 			int const x = r.left + m.cx;
 			int const y = r.top + m.cy;
 
-			if (fen.col[fen_i] == Side::Light)
+			if (fen.col[i] == Side::Light)
 			{
-				lib::draw_char(dc, x, y, fen.to_dark(fen_i), lp);
-				lib::draw_char(dc, x, y, fen.fen[fen_i], lp_darker);
+				lib::draw_char(dc, x, y, fen.get_inv(i, map), lp);
+				lib::draw_char(dc, x, y, fen.get(i, map), lb);
 			}
-			else if (fen.col[fen_i] == Side::Dark)
+			else if (fen.col[i] == Side::Dark)
 			{
-				lib::draw_char(dc, x, y, fen.fen[fen_i], dp);
-				lib::draw_char(dc, x, y, fen.to_light(fen_i), dp_darker);
+				lib::draw_char(dc, x, y, fen.get(i, map), dp);
+				lib::draw_char(dc, x, y, fen.get_inv(i, map), db);
 			}
 
-			++fen_i;
+			++i;
 		}
 }
 
-void draw_board_simple(HDC dc, fen_t & fen, chessfont_t & font, theme_t & theme, grid_t & grid)
+void draw_board_simple(HDC dc, fen_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid)
 {
-	SelectObject(dc, font.handle);
+	lib::log("mode: NEWSPAPER\n");
+
+	SelectObject(dc, font);
 	SetBkMode(dc, TRANSPARENT);
 	SelectObject(dc, GetStockObject(NULL_PEN));
 	SelectObject(dc, GetStockObject(DC_BRUSH));
@@ -104,7 +105,7 @@ void draw_board_simple(HDC dc, fen_t & fen, chessfont_t & font, theme_t & theme,
 	SetDCBrushColor(dc, background);
 	Rectangle(dc, r.left, r.top, r.right + 1, r.bottom + 1);
 
-	size_t fen_i=0;
+	size_t i = 0;
 	for (size_t row=0; row<8; ++row)
 		for (size_t col=0; col<8; ++col)
 		{
@@ -112,16 +113,30 @@ void draw_board_simple(HDC dc, fen_t & fen, chessfont_t & font, theme_t & theme,
 			int const x = r.left + m.cx;
 			int const y = r.top + m.cy;
 
-			char const c = fen2font(fen.raw[fen_i], map_internal_26, col, row);
+			char const c = fen.get(i, map, col, row);
 			lib::draw_char(dc, x, y, c, foreground);
 
-			++fen_i;
+			++i;
 		}
 }
 
 int main(int argc, char ** argv)
 {
-	// lib::print_argv(argv);
+	lib::print_argv(argv);
+
+	// lib::split_path_t sp;
+	// sp.parse("hi\\ho\\hello.txt.bak");
+	// sp.print();
+	// sp.parse("hello.txt.bak");
+	// sp.print();
+	// sp.parse("hello");
+	// sp.print();
+	// sp.parse(".bak");
+	// sp.print();
+	// sp.parse("");
+	// sp.print();
+	// sp.parse(nullptr);
+	// sp.print();
 
 	args_t args;
 	if (!args.parse(argc, argv))
@@ -137,6 +152,20 @@ int main(int argc, char ** argv)
 	// lib::log("BGR: ");
 	// theme.print();
 
+	lib::chessfont_t font;
+	if (!font.create(args.font, args.square_size))
+	{
+		lib::err("! Was unable to create font \"%s\" (with size %d).",
+			args.font, args.square_size);
+		return EXIT_FAILURE;
+	}
+
+	lib::log("font: %p\n", font.handle);
+
+	fen_t fen;
+	if (!fen.parse(args.fen))
+		return EXIT_FAILURE;
+
 	grid_t grid;
 	grid.set_size(8, 8);
 	grid.set_square_size(args.square_size, args.gap);
@@ -150,26 +179,12 @@ int main(int argc, char ** argv)
 	HDC const dc = mdc.dc;
 	HBITMAP const bmp = mdc.bmp;
 
-	chessfont_t font;
-	if (!args.font || !*args.font || !strcmp(args.font, "0"))
-	{
-		args.font = FONT_INTERNAL_NAME;
-		args.map = map_internal_12;
-		font.create_from_resource(FONT_INTERNAL_PATH, args.font, args.square_size);
-	}
-	else
-	{
-		font.create_from_file_or_name(args.font, args.square_size);
-	}
+	lib::err("args.map_length: %d\n", args.map_length);
 
-	fen_t fen;
-	if (!fen.parse(args.fen, args.map))
-		return EXIT_FAILURE;
-
-	if (theme.valid)
-		draw_board_themed(dc, fen, font, theme, grid);
-	else
-		draw_board_simple(dc, fen, font, theme, grid);
+	if (args.map_length == 12)
+		draw_board_themed(dc, fen, font.handle, args.map, theme, grid);
+	else if (args.map_length == 26)
+		draw_board_simple(dc, fen, font.handle, args.map, theme, grid);
 
 	if (args.out_path)
 	{

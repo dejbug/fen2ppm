@@ -1,18 +1,13 @@
 #include <stdio.h>
+#include "../lib/lib.h"
 #include "../lib/argument_parser_t.h"
-
-#define DEFAULT_COLORS NULL
-#define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define DEFAULT_FONT nullptr
-#define DEFAULT_GAP 0
-#define DEFAULT_MAP "aAbBcCdDeEfF" // "pPnNbBrRqQkK"
-#define DEFAULT_OUT_PATH NULL
-#define DEFAULT_SQUARE_SIZE 64
-
-#define MIN_SQUARE_SIZE 8
 
 struct args_t
 {
+	// We keep the parser around so we can test whether the values of the
+	// parameters were passed as such by user or were the result of defaulting.
+	lib::argument_parser_t parser;
+
 	char const * colors = nullptr;
 	char const * fen = nullptr;
 	char const * font = nullptr;
@@ -20,13 +15,13 @@ struct args_t
 	char const * out_path = nullptr;
 	int gap = 0;
 	int square_size = 0;
-	bool ok = false;
+
+	int map_length = 0;
+
+	args_t() : parser("c:f:g:m:o:s:vh") {}
 
 	bool parse(int argc, char ** argv)
 	{
-		ok = false;
-
-		lib::argument_parser_t parser("c:f:g:m:o:s:vh");
 		if (!parser.parse(argc, argv))
 		{
 			if (parser.unknown)
@@ -45,36 +40,84 @@ struct args_t
 		}
 		// parser.print();
 
+		// TODO: I wanted to keep this class lean but we might want to
+		// aid modularisation by providing all the parameters with defaults.
+		// If external logic needs to dstinguish between user-passed and
+		// defaulted values it can query the retained parser object.
+
 		colors = parser.opt('c');
-		if (!colors) colors = DEFAULT_COLORS;
+		if (!colors || !*colors) colors = DEFAULT_COLORS;
 
-		fen = DEFAULT_FEN;
-		if (parser.arg(0)) fen = parser.arg(0);
+		fen = parser.arg(0);
+		if (!fen || !*fen)
+		{
+			lib::log("* No FEN supplied; using FEN of standard starting position.\n");
+			fen = DEFAULT_FEN;
+		}
 
-		font = DEFAULT_FONT;
-		if (parser.opt('f')) font = parser.opt('f');
+		font = parser.opt('f');
+		if (!font || !*font)
+		{
+			lib::log("* No font supplied; using built in font.\n");
+			font = DEFAULT_FONT;
+		}
 
 		gap = DEFAULT_GAP;
-		if (parser.opt('g')) gap = atoi(parser.opt('g'));
+		if (parser.opt('g'))
+			gap = atoi(parser.opt('g'));
+		if (gap < 0) gap = -gap;
 
-		map = DEFAULT_MAP;
-		if (parser.opt('m')) map = parser.opt('m');
+		// It is difficult to provide a default map. One would have
+		// to try and derive a map from the inspecting the sizes of
+		// the glyphs of the font; an expensive operation likely to
+		// fail anyway.
+		map = parser.opt('m');
+		if (map && !*map) map = nullptr;
 
-		out_path = DEFAULT_OUT_PATH;
-		if (parser.opt('o')) out_path = parser.opt('o');
+		map_length = map ? strlen(map) : 0;
+
+		// Three kinds of map can be passed, distinguishable by length.
+		if (map_length != 12 && map_length != 26)
+		{
+			// A map was passed.
+			if (map_length != 0)
+			{
+				int const index = atoi(map);
+				if (index >= 0 && index < MAP_INTERNAL_COUNT)
+				{
+					map = map_internal_strings[index];
+					map_length = map_internal_lengths[index];
+				}
+				else
+				{
+					lib::log("* The map is neither a string of length 12 or 26, nor is it a valid integer index into the internal table of predefined/common maps.\n", map_length);
+					return false;
+				}
+			}
+			// If user passed neither font nor map, then the font will
+			// have defaulted, so we know to use the default map, too.
+			else if (lib::is_empty(parser.opt('f')))
+			{
+				// The default font mode is newspaper mode, so we use
+				// the 26-digit map.
+				map = MAP_INTERNAL_26;
+				map_length = 26;
+			}
+		}
+
+		// No out_path just means to print to STDOUT.
+		out_path = parser.opt('o');
+		if (out_path && !*out_path) out_path = nullptr;
 
 		square_size = DEFAULT_SQUARE_SIZE;
 		if (parser.opt('s'))
 			square_size = atoi(parser.opt('s'));
 
-		if (gap < 0) gap = -gap;
-
 		if (square_size < MIN_SQUARE_SIZE)
 		{
-			lib::err("! The square size of %d is too small to be useful.\n", square_size);
-			return false;
+			lib::log("* A square size of %d is impractically small. Defaulting to %d.\n", square_size, MIN_SQUARE_SIZE);
+			square_size = MIN_SQUARE_SIZE;
 		}
-
 		return true;
 	}
 

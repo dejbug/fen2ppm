@@ -59,4 +59,63 @@ TEST(LibTest, NotDir) {
 	ASSERT_EQ(strcmp(lib::notdir("D:"), "D:"), 0);
 }
 
+TEST(LibTest, SplitPath) {
+	lib::split_path_t x;
+
+	x.parse("");
+	x.print();
+	ASSERT_EQ(x.path, nullptr);
+	ASSERT_EQ(strcmp(x.name, ""), 0);
+	ASSERT_EQ(x.ext, nullptr);
+
+	
+	x.parse("Hello");
+	x.print();
+	ASSERT_EQ(x.path, nullptr);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(x.ext, nullptr);
+
+	x.parse("Hi\\Ho/Hello");
+	x.print();
+	ASSERT_EQ(strcmp(x.path, "Hi\\Ho"), 0);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(x.ext, nullptr);
+
+	x.parse("Hi/Ho\\Hello");
+	x.print();
+	ASSERT_EQ(strcmp(x.path, "Hi/Ho"), 0);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(x.ext, nullptr);
+
+	x.parse("Hi\\Ho\\Hello.txt");
+	x.print();
+	ASSERT_EQ(strcmp(x.path, "Hi\\Ho"), 0);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(strcmp(x.ext, "txt"), 0);
+
+	x.parse("Hi//Ho//Hello.txt");
+	x.print();
+	ASSERT_EQ(strcmp(x.path, "Hi//Ho/"), 0);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(strcmp(x.ext, "txt"), 0);
+
+	x.parse("/Hello.txt");
+	x.print();
+	ASSERT_EQ(strcmp(x.path, ""), 0);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(strcmp(x.ext, "txt"), 0);
+
+	x.parse("Hello.txt");
+	x.print();
+	ASSERT_EQ(x.path, nullptr);
+	ASSERT_EQ(strcmp(x.name, "Hello"), 0);
+	ASSERT_EQ(strcmp(x.ext, "txt"), 0);
+
+	x.parse(".txt");
+	x.print();
+	ASSERT_EQ(x.path, nullptr);
+	ASSERT_EQ(strcmp(x.name, ""), 0);
+	ASSERT_EQ(strcmp(x.ext, "txt"), 0);
+}
+
 }
