@@ -55,7 +55,7 @@ void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 	grid.get_bounds(r);
 
 	SetDCBrushColor(dc, background);
-	Rectangle(dc, r.left, r.top, r.right, r.bottom);
+	Rectangle(dc, r.left, r.top, r.right + 1, r.bottom + 1);
 
 	size_t i = 0;
 	for (size_t row=0; row<8; ++row)
