@@ -18,13 +18,12 @@
 #include "app/args_t.h"
 #include "app/theme_t.h"
 
-// FIXME: Add a USAGE and HELP message.
+// TODO: Start using fen2_t (which allows for different board geometries).
 
+// FIXME: Add a USAGE and HELP message.
 // FIXME:bitmap_t.h: Test calc_bitmap_size() or find a better reference on bitmaps.
 
-// TODO: Add differently sized boards (1x1 and up).
 // TODO: Add ROPs.
-
 // TODO:theme_t: Move the static methods into lib ?
 
 void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid, float border_factor=0.3)
@@ -122,21 +121,7 @@ void draw_board_simple(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 
 int main(int argc, char ** argv)
 {
-	lib::print_argv(argv);
-
-	// lib::split_path_t sp;
-	// sp.parse("hi\\ho\\hello.txt.bak");
-	// sp.print();
-	// sp.parse("hello.txt.bak");
-	// sp.print();
-	// sp.parse("hello");
-	// sp.print();
-	// sp.parse(".bak");
-	// sp.print();
-	// sp.parse("");
-	// sp.print();
-	// sp.parse(nullptr);
-	// sp.print();
+	// lib::print_argv(argv);
 
 	args_t args;
 	if (!args.parse(argc, argv))

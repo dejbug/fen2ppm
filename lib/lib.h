@@ -2,6 +2,8 @@
 #include <algorithm> // max
 #include <stdio.h>
 #include <stdarg.h>
+#include <string>
+#include <vector>
 
 #include "out.h"
 
@@ -16,7 +18,6 @@
 #define HTML_RED(c)   ((UCHAR)( ((DWORD)(c)>>16u) & 0xFFu ))
 #define HTML_GREEN(c) ((UCHAR)( ((DWORD)(c)>>8u)  & 0xFFu ))
 #define HTML_BLUE(c)  ((UCHAR)( ((DWORD)(c))      & 0xFFu ))
-
 
 #define DEFAULT_COLORS NULL
 #define DEFAULT_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -251,6 +252,67 @@ bool is_printable(char const * s)
 	if (!s || !*s) return false;
 	while (*s) if(!isspace(*s++)) return true;
 	return false;
+}
+
+void parse(std::vector<std::string> & words, std::vector<std::string> & separators, char const * text, char const * alphabet)
+{
+	if (!text) return;
+
+	if (!*text || !alphabet || !*alphabet)
+	{
+		words.push_back(text);
+		return;
+	}
+
+	enum { None, InWord, InSeparator } mode = None;
+	std::string wacc = "";
+	std::string sacc = "";
+
+	for (; *text; ++text)
+	{
+		if (mode == None)
+		{
+			if (strchr(alphabet, *text))
+			{
+				wacc += *text;
+				mode = InWord;
+			}
+			else
+			{
+				words.push_back("");
+				sacc += *text;
+				mode = InSeparator;
+			}
+		}
+		else if (mode == InWord)
+		{
+			if (strchr(alphabet, *text))
+				wacc += *text;
+			else
+			{
+				words.push_back(wacc);
+				wacc = "";
+				sacc += *text;
+				mode = InSeparator;
+			}
+		}
+		else if (mode == InSeparator)
+		{
+			if (!strchr(alphabet, *text))
+				sacc += *text;
+			else
+			{
+				separators.push_back(sacc);
+				sacc = "";
+				wacc += *text;
+				mode = InWord;
+			}
+		}
+	}
+	if (!wacc.empty())
+		words.push_back(wacc);
+	if (!sacc.empty())
+		separators.push_back(sacc);
 }
 
 } // lib
