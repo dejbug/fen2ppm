@@ -22,7 +22,12 @@ COLORS is e.g. `eee/fee/0ef/f00`, which would draw light grey and rose squares a
 
 You can play around with different board geometries. `fen2ppm.exe -o fen.ppm -c ffe,a00 rnbqk/ppppp/5/5/PPPPP/RNBQK -s 128` will give you a 5x6 board.
 
+`fen2ppm.exe -o fen.ppm -c faa,000 rnbqkbnr/pppppppp/8/8/PPPPPPPP/RNBQKBNR -s 128`
+
 ![fen2](../assets/fen8x6.png?raw=true)
+
+`fen2ppm.exe -o fen.ppm -c ffe,a00 rnbqk/ppppp/5/5/PPPPP/RNBQK -s 128`:
+
 ![fen3](../assets/fen5x6.png?raw=true)
 
 # Demo
