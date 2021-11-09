@@ -27,19 +27,33 @@ struct grid_t
 		r.right = r.left + edge;
 		r.bottom = r.top + edge;
 	}
-	
+
 	void get_bounds(RECT & r) const
 	{
 		r.left = r.top = 0;
 		r.right = r.left + cols * (edge + gap) + gap;
 		r.bottom = r.top + rows * (edge + gap) + gap;
 	}
-	
-	size_t get_image_edge() const
+
+	// size_t get_image_edge() const
+	// {
+		// RECT r;
+		// get_bounds(r);
+		// return std::max(r.right - r.left, r.bottom - r.top);
+	// }
+
+	size_t width() const
 	{
 		RECT r;
 		get_bounds(r);
-		return std::max(r.right - r.left, r.bottom - r.top);
+		return r.right - r.left;
+	}
+
+	size_t height() const
+	{
+		RECT r;
+		get_bounds(r);
+		return r.bottom - r.top;
 	}
 };
 

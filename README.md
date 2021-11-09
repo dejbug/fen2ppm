@@ -18,9 +18,22 @@ FONT_MAPPING is e.g. `"ABCDEFGHIJKL"`. This is a twelve-letter string, each lett
 
 COLORS is e.g. `eee/fee/0ef/f00`, which would draw light grey and rose squares and light blue and red pieces. The format is DS/LS/DP/LP (D=dark, L=light, S=square, P=piece). You can give it three-digit, six-digit, or eight-digit hex numbers (with or without preceding '#'). The three- and six-digit hexes are known to you as HTML colors; (the eight-digit form includes an alpha channel, which is currently ignored).
 
-A sample image.
+# Geometry
+
+You can play around with different board geometries. `fen2ppm.exe -o fen.ppm -c ffe,a00 rnbqk/ppppp/5/5/PPPPP/RNBQK -s 128` will give you a 5x6 board.
+
+![fen2](../assets/fen8x6.png?raw=true)
+![fen3](../assets/fen5x6.png?raw=true)
+
+# Demo
+
+Just what you'd expect from a simple application like this.
 
 ![demo](../assets/fen.png?raw=true)
+
+# Why no PNG support?
+
+This application is just a finger-exercise. A real chess GUI might still follow.
 
 # Download
 

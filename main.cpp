@@ -26,7 +26,7 @@
 // TODO: Add ROPs.
 // TODO:theme_t: Move the static methods into lib ?
 
-void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid, float border_factor=0.3)
+void draw_board_themed(HDC dc, fen2_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid, float border_factor=0.3)
 {
 	lib::log("mode: THEMED\n");
 
@@ -58,8 +58,8 @@ void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 	Rectangle(dc, r.left, r.top, r.right + 1, r.bottom + 1);
 
 	size_t i = 0;
-	for (size_t row=0; row<8; ++row)
-		for (size_t col=0; col<8; ++col)
+	for (size_t row=0; row<grid.rows; ++row)
+		for (size_t col=0; col<grid.cols; ++col)
 		{
 			grid.get_square_rect(r, col, row);
 			SetDCBrushColor(dc, ((row + col) % 2 == 0) ? ls : ds);
@@ -68,12 +68,12 @@ void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 			int const x = r.left + m.cx;
 			int const y = r.top + m.cy;
 
-			if (fen.col[i] == Side::Light)
+			if (fen.side(i) == Side::Light)
 			{
 				lib::draw_char(dc, x, y, fen.get_inv(i, map), lp);
 				lib::draw_char(dc, x, y, fen.get(i, map), lb);
 			}
-			else if (fen.col[i] == Side::Dark)
+			else if (fen.side(i) == Side::Dark)
 			{
 				lib::draw_char(dc, x, y, fen.get(i, map), dp);
 				lib::draw_char(dc, x, y, fen.get_inv(i, map), db);
@@ -83,7 +83,7 @@ void draw_board_themed(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 		}
 }
 
-void draw_board_simple(HDC dc, fen_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid)
+void draw_board_simple(HDC dc, fen2_t & fen, HFONT font, char const * map, theme_t & theme, grid_t & grid)
 {
 	lib::log("mode: NEWSPAPER\n");
 
@@ -98,6 +98,7 @@ void draw_board_simple(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 	SIZE m = {0, 0};
 	lib::calc_text_centering_margins(dc, grid.edge, m, lib::CenteringMode::MAX);
 
+
 	RECT r;
 	grid.get_bounds(r);
 
@@ -105,8 +106,8 @@ void draw_board_simple(HDC dc, fen_t & fen, HFONT font, char const * map, theme_
 	Rectangle(dc, r.left, r.top, r.right + 1, r.bottom + 1);
 
 	size_t i = 0;
-	for (size_t row=0; row<8; ++row)
-		for (size_t col=0; col<8; ++col)
+	for (size_t row=0; row<grid.rows; ++row)
+		for (size_t col=0; col<grid.cols; ++col)
 		{
 			grid.get_square_rect(r, col, row);
 			int const x = r.left + m.cx;
@@ -147,16 +148,16 @@ int main(int argc, char ** argv)
 
 	lib::log("font: %p\n", font.handle);
 
-	fen_t fen;
-	if (!fen.parse(args.fen))
+	fen2_t fen;
+	if (!fen.parse(args.fen) && !fen.rectangle)
 		return EXIT_FAILURE;
 
 	grid_t grid;
-	grid.set_size(8, 8);
+	grid.set_size(fen.geom.right, fen.geom.bottom);
 	grid.set_square_size(args.square_size, args.gap);
 
 	memory_dc_t mdc;
-	if (!mdc.create(grid.get_image_edge()))
+	if (!mdc.create(grid.width(), grid.height()))
 	{
 		lib::err("! Was unable to create DC.\n");
 		return EXIT_FAILURE;

@@ -34,7 +34,7 @@ struct memory_dc_t
 
 	~memory_dc_t() { free(); }
 
-	bool create(int image_size)
+	bool create(int width, int height)
 	{
 		free();
 		if (!ctx.create()) return false;
@@ -42,7 +42,7 @@ struct memory_dc_t
 		dc = CreateCompatibleDC(ctx.dc);
 		if (!dc) return false;
 		lib::log("Memory HDC: %p\n", (void *)dc);
-		bmp = CreateCompatibleBitmap(ctx.dc, image_size, image_size);
+		bmp = CreateCompatibleBitmap(ctx.dc, width, height);
 		if (!bmp) return false;
 		lib::log("Memory HBITMAP: %p\n", (void *)bmp);
 		SelectObject(dc, bmp);

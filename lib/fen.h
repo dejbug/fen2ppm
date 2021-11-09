@@ -1,4 +1,6 @@
 #pragma once
+#include <algorithm> // min, max
+#include <limits.h> // INT_MIN, INT_MAX
 #include <assert.h>
 #include "lib.h"
 
@@ -230,9 +232,9 @@ void fen_strip(std::string & out, char const * fen)
 		}
 }
 
-typedef enum { Ok=0, RanksMismatch, NotSquare } FenUnpackResult;
+typedef enum { Ok=0, NotRectangle, NotSquare } FenUnpackResult;
 
-int fen_unpack(std::string & raw, char const * fen_)
+int fen_unpack(std::string & raw, RECT & geom, char const * fen_)
 {
 	std::string fen;
 	fen_strip(fen, fen_);
@@ -247,6 +249,9 @@ int fen_unpack(std::string & raw, char const * fen_)
 	// for (auto sep  : seps)  lib::log("SEPARATOR  |%s|\n", sep.data());
 
 	int result = FenUnpackResult::Ok;
+	geom.top = geom.bottom = words.size();
+	geom.left = INT_MAX;
+	geom.right = 0;
 	size_t width = 0;
 
 	for (auto word : words)
@@ -256,29 +261,41 @@ int fen_unpack(std::string & raw, char const * fen_)
 		raw += inf;
 		// lib::log("WIDTH: %d %d\n", width, inf.size());
 		if (!width) width = inf.size();
-		if (width != inf.size()) result |= RanksMismatch;
+		if (width != inf.size()) result |= NotRectangle;
 		if (inf.size() != words.size()) result |= NotSquare;
+
+		geom.left = std::min((size_t)geom.left, inf.size());
+		geom.right = std::max((size_t)geom.right, inf.size());
 	}
 
+	// assert(geom.left == geom.right && geom.top == geom.bottom); // rectangle
+	// assert(geom.left == geom.top); // square
+
 	if (result & NotSquare) lib::log("* Board not square.\n");
-	if (result & RanksMismatch) lib::log("* Rank size mismatch.\n");
+	if (result & NotRectangle) lib::log("* Rank size mismatch.\n");
 	return result;
 }
 
 struct fen2_t
 {
 	std::string raw;
-	bool square_board = true;
-	bool ranks_same_size = true;
+	RECT geom;
+	bool square = true;
+	bool rectangle = true;
 
 	bool parse(char const * text)
 	{
 		raw = "";
-		int const result = fen_unpack(raw, text);
+		int const result = fen_unpack(raw, geom, text);
+
+		lib::err("GEOM: ");
+		lib::err(geom);
+		lib::err();
+
 		if (result == FenUnpackResult::Ok) return true;
 		lib::log("* Errors while unpacking FEN.\n");
-		square_board = !(result & FenUnpackResult::NotSquare);
-		ranks_same_size = !(result & FenUnpackResult::RanksMismatch);
+		square = !(result & FenUnpackResult::NotSquare);
+		rectangle = !(result & FenUnpackResult::NotRectangle);
 		return false;
 	}
 
