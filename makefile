@@ -1,7 +1,8 @@
 SHELL := cmd.exe
 RC := windres
 
-TEST_1 := -o fen.ppm -s 64 -c eee/f00 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
+TEST_1 := -s 64 -c eee/f00
+TEST_2 := -o fen.ppm -s 64 -c eee/f00
 
 NAME := fen2ppm
 
