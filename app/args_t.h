@@ -1,3 +1,4 @@
+#pragma once
 #include <stdio.h>
 #include "../lib/lib.h"
 #include "../lib/argument_parser_t.h"

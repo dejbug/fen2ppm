@@ -81,8 +81,8 @@ bool extract_name_by_search(const char * fotpath, char * name, size_t size)
 	if (lib::find_text_in_file(file, "FONTRES:"))
 	{
 		result = true;
-		fgets(name, std::min((LONG)MAX_PATH, rest), file);
-		name[MAX_PATH] = '\0';
+		fgets(name, std::min((LONG)size, rest), file);
+		name[size] = '\0';
 	}
 
 	fclose(file);
@@ -110,29 +110,27 @@ HFONT create_font_from_name(char const * name, int size, int mode=CreateFontMode
 		PROOF_QUALITY, FF_DONTCARE, name);
 }
 
-HFONT create_font_from_resource(char const * path, int size)
+bool install_font_from_resource(char (&name)[MAX_PATH+1], char const * path)
 {
-	char const * name = nullptr;
-
 	lib::split_path_t sp;
 
 	if (!path || !*path || !sp.parse(path))
 	{
 		path = FONT_INTERNAL_PATH;
-		name = FONT_INTERNAL_NAME;
+		strncpy(name, FONT_INTERNAL_NAME, sizeof(name));
 	}
 	else
 	{
-		name = sp.name;
+		strncpy(name, sp.name, sizeof(name));
 	}
 	sp.print();
 
-	lib::log("* Loading from resource |%s|%s|.\n", path, name);
+	lib::log("* Loading from resource |%s| (%s).\n", path, name);
 
-	if (!name)
+	if (!*name)
 	{
 		lib::err("! Couldn't derive font name from resource \"%s\".\n", path);
-		return nullptr;
+		return false;
 	}
 
 	HINSTANCE const instance = GetModuleHandle(NULL);
@@ -140,7 +138,7 @@ HFONT create_font_from_resource(char const * path, int size)
 	if (!res_find)
 	{
 		lib::err("! Was unable to find internal chessfont.\n");
-		return nullptr;
+		return false;
 	}
 	DWORD const res_size = SizeofResource(instance, res_find);
 	lib::log("res_size: %d\n", res_size);
@@ -148,25 +146,25 @@ HFONT create_font_from_resource(char const * path, int size)
 	if (!res_load)
 	{
 		lib::err("! Was unable to load internal chessfont resource.\n");
-		return nullptr;
+		return false;
 	}
 	LPVOID res_lock = LockResource(res_load);
 	if (!res_lock)
 	{
 		lib::err("! Was unable to lock internal chessfont resource.\n");
-		return nullptr;
+		return false;
 	}
 	DWORD res_loaded_count = 0;
 	HANDLE const res_add = AddFontMemResourceEx(res_lock, res_size, 0, &res_loaded_count);
 	if (!res_add)
 	{
 		lib::err("! Was unable to add internal chessfont.\n");
-		return nullptr;
+		return false;
 	}
 	lib::log("res_loaded_count: %d\n", res_loaded_count);
 	lib::log("res_add: %p\n", res_add);
 
-	return create_font_from_name(name, size, CreateFontMode::All);
+	return true;
 }
 
 // void fot_path_delete(char *& fot_path)
@@ -177,47 +175,47 @@ HFONT create_font_from_resource(char const * path, int size)
 // 	lib::log("DONE\n");
 // }
 
-HFONT create_font_from_path(char const * path, int size, char (&fot_path)[MAX_PATH+1])
+bool install_font_from_path(char (&name)[MAX_PATH+1], char const * path, char (&fot_path)[MAX_PATH+1])
 {
 	lib::log("* Loading from path |%s|.\n", path);
 
-	if (!path || !*path) return nullptr;
-	if (isdigit(path[0]) && path[1] == '\0') return nullptr;
-	if (!lib::file_exists(path)) return nullptr;
+	if (!path || !*path) return false;
+	if (isdigit(path[0]) && path[1] == '\0') return false;
+	if (!lib::file_exists(path)) return false;
 
 	memset(fot_path, 0, sizeof(fot_path));
 	lib::make_temp_path(fot_path, MAX_PATH, FOT_NAME);
 	// char * fot_path = lib::make_temp_path(FOT_NAME);
-	// if (!fot_path) return nullptr;
+	// if (!fot_path) return false;
 	// std::unique_ptr<char,decltype(&fot_path_delete)> fot_path_deleter(fot_path, &fot_path_delete);
 
 	DeleteFile(fot_path);
 
-	if (!CreateScalableFontResource(1,fot_path,path,0)) return nullptr;
-	if (0 == AddFontResource(fot_path)) return nullptr;
+	if (!CreateScalableFontResource(1,fot_path,path,0)) return false;
+	if (0 == AddFontResource(fot_path)) return false;
 
-	char name[MAX_PATH+1];
 	memset(name, 0, sizeof(name));
-	if (!extract_name(fot_path, name, sizeof(MAX_PATH))) return nullptr;
+	if (!extract_name(fot_path, name, sizeof(name))) return false;
 
-	if (!name || !*name) return nullptr;
+	if (!*name) return false;
 
-	return create_font_from_name(name, size, CreateFontMode::All);
+	return true;
 }
 
-HFONT create_font(char const * path_or_name, int size)
-{
-	char fot[MAX_PATH+1] = {0};
-	HFONT font = nullptr;
-	if ((font = create_font_from_path(path_or_name, size, fot))) return font;
-	if ((font = create_font_from_name(path_or_name, size, CreateFontMode::Enumerable))) return font;
-	if ((font = create_font_from_resource(path_or_name, size))) return font;
-	return nullptr;
-}
+// HFONT create_font(char const * path_or_name, int size)
+// {
+	// char fot[MAX_PATH+1] = {0};
+	// HFONT font = nullptr;
+	// if ((font = install_font_from_path(path_or_name, size, fot))) return font;
+	// if ((font = create_font_from_name(path_or_name, size, CreateFontMode::Enumerable))) return font;
+	// if ((font = install_font_from_resource(path_or_name, size))) return font;
+	// return nullptr;
+// }
 
 struct chessfont_t
 {
 	HFONT handle = nullptr;
+	char name[MAX_PATH+1] = {0};
 	char fot_path[MAX_PATH+1] = {0};
 	bool installed = false;
 
@@ -227,12 +225,35 @@ struct chessfont_t
 
 	bool create(char const * path_or_name, int size)
 	{
-		handle = create_font_from_path(path_or_name, size, fot_path);
-		if (handle) { installed = true; return true; }
-		handle = create_font_from_name(path_or_name, size, CreateFontMode::Enumerable);
+		free();
+
+		if (*name)
+		{
+			lib::log("* Loading already installed font.\n");
+			handle = create_font_from_name(name, size, CreateFontMode::All);
+			if (handle) return true;
+		}
+
+		lib::log("* Reinstalling font.\n");
+
+		uninstall();
+
+		if (install_font_from_path(name, path_or_name, fot_path))
+		{
+			handle = create_font_from_name(name, size, CreateFontMode::All);
+			if (handle) { installed = true; return true; }
+		}
+
+		strncpy(name, path_or_name, sizeof(name));
+		handle = create_font_from_name(name, size, CreateFontMode::Enumerable);
 		if (handle) { installed = false; return true; }
-		handle = create_font_from_resource(path_or_name, size);
-		if (handle) { installed = false; return true; }
+
+		if (install_font_from_resource(name, path_or_name))
+		{
+			handle = create_font_from_name(name, size, CreateFontMode::All);
+			if (handle) { installed = false; return true; }
+		}
+
 		return false;
 	}
 

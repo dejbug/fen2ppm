@@ -29,16 +29,15 @@
 // TODO: Add ROPs.
 // TODO:theme_t: Move the static methods into lib ?
 
-int main(int argc, char ** argv)
+args_t args;
+theme_t theme;
+lib::chessfont_t font;
+fen2_t fen;
+grid_t grid;
+memory_dc_t mdc;
+
+bool init_board()
 {
-	// lib::print_argv(argv);
-
-	args_t args;
-	if (!args.parse(argc, argv))
-		return EXIT_FAILURE;
-	args.print();
-
-	theme_t theme;
 	int const count = theme.parse(args.colors);
 	lib::log("THEME: %d COLORS matched\n", count);
 	lib::log("RGB: ");
@@ -47,51 +46,69 @@ int main(int argc, char ** argv)
 	// lib::log("BGR: ");
 	// theme.print();
 
-	lib::chessfont_t font;
+	if (!fen.parse(args.fen) && !fen.rectangle)
+		return false;
+
+	return true;
+}
+
+bool update_board()
+{
 	if (!font.create(args.font, args.square_size))
 	{
-		lib::err("! Was unable to create font \"%s\" (with size %d).",
+		lib::err("! Was unable to resize font \"%s\" (with size %d)\n.",
 			args.font, args.square_size);
-		return EXIT_FAILURE;
+		return false;
 	}
 
 	lib::log("font: %p\n", font.handle);
 
-	fen2_t fen;
-	if (!fen.parse(args.fen) && !fen.rectangle)
-		return EXIT_FAILURE;
-
-	grid_t grid;
 	grid.set_size(fen.geom.right, fen.geom.bottom);
 	grid.set_square_size(args.square_size, args.gap);
 
-	memory_dc_t mdc;
 	if (!mdc.create(grid.width(), grid.height()))
 	{
 		lib::err("! Was unable to create DC.\n");
-		return EXIT_FAILURE;
+		return false;
 	}
-	HDC const dc = mdc.dc;
-	HBITMAP const bmp = mdc.bmp;
 
 	lib::err("args.map_length: %d\n", args.map_length);
 
+	return true;
+}
+
+bool draw_board()
+{
 	if (args.map_length == 12)
-		draw_board_themed(dc, fen, font.handle, args.map, theme, grid);
+		draw_board_themed(mdc.dc, fen, font.handle, args.map, theme, grid);
 	else if (args.map_length == 26)
-		draw_board_simple(dc, fen, font.handle, args.map, theme, grid);
+		draw_board_simple(mdc.dc, fen, font.handle, args.map, theme, grid);
+
+	return true;
+}
+
+int main(int argc, char ** argv)
+{
+	// lib::print_argv(argv);
+
+	if (!args.parse(argc, argv))
+		return EXIT_FAILURE;
+	args.print();
+
+	if (!init_board() || !update_board() || !draw_board())
+		return EXIT_FAILURE;
 
 	if (args.out_path)
 	{
 		lib::log("* WRITING\n");
 		FILE * outfile = fopen(args.out_path, "wb");
-		dump_bitmap_data(dc, bmp, outfile);
+		dump_bitmap_data(mdc.dc, mdc.bmp, outfile);
 		fclose(outfile);
 	}
 	// else
 	// {
 		// lib::log("* PRINTING\n");
-		// dump_bitmap_data(dc, bmp, stdout);
+		// dump_bitmap_data(mdc.dc, mdc.bmp, stdout);
 	// }
 	else
 	{
@@ -111,10 +128,6 @@ int main(int argc, char ** argv)
 		ShowWindow(h, SW_SHOW);
 
 		HACCEL const a = LoadAccelerators(wc.hInstance, "accel_main");
-
-		SetProp(h, "GRID", &grid);
-		SetProp(h, "MDC", &mdc);
-		SendMessage(h, WMUSER_INIT_PROPS, 0, 0);
 
 		MSG m;
 		return app::run(m, h, a);

@@ -2,29 +2,24 @@
 #include <windows.h>
 #include "../res/resource.h"
 
+#include "../lib/out.h"
 #include "../lib/memory_dc_t.h"
+#include "../lib/grid_t.h"
+#include "../app/args_t.h"
 
 #define WINDOW_TITLE_MAIN "fen2ppm"
 
-#define WMUSER_INIT_PROPS WM_USER + 1
+extern args_t args;
+extern memory_dc_t mdc;
+extern memory_dc_t mdc;
+extern grid_t grid;
+extern bool update_board();
+extern bool draw_board();
 
 namespace app {
 
-bool ensure_props_available(HWND h, memory_dc_t *& mdc, grid_t *& grid)
-{
-	if (!mdc) mdc = (memory_dc_t*)GetProp(h, "MDC");
-	if (!mdc) return false;
-	if (!grid) grid = (grid_t*)GetProp(h, "GRID");
-	if (!grid) return false;
-	return true;
-}
-
 LRESULT CALLBACK MainFrame(HWND h, UINT m, WPARAM w, LPARAM l)
 {
-	static memory_dc_t * mdc = nullptr;
-	static grid_t * grid = nullptr;
-	static PAINTSTRUCT ps;
-
 	switch (m)
 	{
 		case WM_CREATE:
@@ -33,23 +28,32 @@ LRESULT CALLBACK MainFrame(HWND h, UINT m, WPARAM w, LPARAM l)
 			break;
 		}
 
-		case WMUSER_INIT_PROPS:
-		{
-			printf("WMUSER_INIT_PROPS\n");
-			if (!ensure_props_available(h, mdc, grid))
-				return 1;
-			return 0;
-		}
-
 		case WM_PAINT:
 		{
+			lib::log("* WM_PAINT\n");
+			PAINTSTRUCT ps;
 			HDC const dc = BeginPaint(h, &ps);
 
 			RECT r;
-			grid->get_bounds(r);
-			BitBlt(dc, 0, 0, r.right, r.bottom, mdc->dc, 0, 0, SRCCOPY);
+			grid.get_bounds(r);
+			BitBlt(dc, 0, 0, r.right, r.bottom, mdc.dc, 0, 0, SRCCOPY);
 
 			EndPaint(h, &ps);
+			break;
+		}
+
+		case WM_SIZE:
+		{
+			lib::log("* WM_SIZE\n");
+			RECT r;
+			GetClientRect(h, &r);
+			long const side = std::min(r.right-r.left, r.bottom-r.top);
+			long const edge = side >> 3;
+			args.square_size = edge;
+			update_board();
+			draw_board();
+			InvalidateRect(h, NULL, TRUE);
+			UpdateWindow(h);
 			break;
 		}
 
